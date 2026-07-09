@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Bookings - Drive Hive</title>
-    <link rel="stylesheet" href="my-bookings.css">
+    <link rel="stylesheet" href="css/my-bookings.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
 <body>
     <div class="container">
         <!-- Sidebar Navigation -->
         <div class="sidebar">
-            <img src="DriveHivelogo.png" alt="Drive Hive Logo" class="logo">
+            <img src="images/DriveHivelogo.png" alt="Drive Hive Logo" class="logo">
             <h2 class="sidebar-title">DRIVE HIVE</h2>
             <ul class="nav-links">
                 <li class="nav-item" id="dashboard">
@@ -72,7 +72,7 @@
     
     <script type="module">
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-database.js";
-        import { database } from "./firebase-config.js";
+        import { database } from "./js/firebase-config.js";
 
         function showModal(message) {
             const modal = document.getElementById("messageModal");
@@ -153,6 +153,6 @@
         });
     </script>
 
-    <script type="module" src="book-now.js"></script>
+    <script type="module" src="js/book-now.js"></script>
 </body>
 </html>
