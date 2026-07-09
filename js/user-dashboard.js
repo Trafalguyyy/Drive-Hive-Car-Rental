@@ -50,7 +50,7 @@ const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
 
 if (!loggedInUser || !loggedInUser.email) {
     console.warn("No logged-in user found. Redirecting to login...");
-    window.location.href = "user-login.html"; // Redirect if user data is missing
+    window.location.href = "index.html"; // Redirect if user data is missing
 } else {
     const userKey = loggedInUser.email.replace(/\./g, '_'); // Firebase key format
 
@@ -80,7 +80,7 @@ if (!loggedInUser || !loggedInUser.email) {
 function logout() {
     localStorage.removeItem("loggedInUser");
     alert("Session expired. Please log in again.");
-    window.location.href = "user-login.html";
+    window.location.href = "index.html";
 }
 
 // ✅ Logout button event
@@ -89,5 +89,6 @@ logoutButton.addEventListener("click", () => {
         logout();
     }
 });
+
 
 

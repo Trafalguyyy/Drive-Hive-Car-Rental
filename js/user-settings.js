@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
     if (!loggedInUser || !loggedInUser.email) {
-        window.location.href = "user-login.html";
+        window.location.href = "index.html";
         return;
     }
 
@@ -97,7 +97,7 @@ async function loadUserData(email) {
         if (loadingIndicator) {
             loadingIndicator.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${error.message}`;
         }
-        setTimeout(() => window.location.href = "user-login.html", 3000);
+        setTimeout(() => window.location.href = "index.html", 3000);
     }
 }
 
@@ -231,6 +231,6 @@ function handleLogout() {
     const isConfirmed = confirm("Are you sure you want to log out?");
     if (isConfirmed) {
         localStorage.removeItem("loggedInUser");
-        window.location.href = 'user-login.html';
+        window.location.href = 'index.html';
     }
 }

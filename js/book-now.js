@@ -182,7 +182,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (!userId) {
         showModal("You must be logged in to book a car.");
-        setTimeout(() => window.location.href = "user-login.html", 2000);
+        setTimeout(() => window.location.href = "index.html", 2000);
         return;
     }
 
@@ -210,7 +210,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (logoutBtn) {
             logoutBtn.addEventListener("click", () => {
                 localStorage.removeItem("loggedInUser");
-                window.location.href = "user-login.html";
+                window.location.href = "index.html";
             });
         }
     };

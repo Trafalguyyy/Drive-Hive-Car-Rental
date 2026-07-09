@@ -344,7 +344,7 @@ export function logout() {
             .then(() => {
                 sessionStorage.clear();
                 localStorage.clear();
-                window.location.href = "index.html"; // Redirect to login page
+                window.location.href = "admin-login.html"; // Redirect to login page
             })
             .catch(error => {
                 console.error("Logout Error:", error);
