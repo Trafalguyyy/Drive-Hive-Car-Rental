@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Bookings - Drive Hive</title>
+    <link rel="stylesheet" href="my-bookings.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <img src="DriveHivelogo.png" alt="Drive Hive Logo" class="logo">
+            <h2 class="sidebar-title">DRIVE HIVE</h2>
+            <ul class="nav-links">
+                <li class="nav-item" id="dashboard">
+                    <i class="fas fa-home"></i> <span>Dashboard</span>
+                </li>
+                <li class="nav-item" id="Viewmap">
+                    <i class="fas fa-map-marker-alt"></i> <span>Map</span>
+                </li>
+                <li class="nav-item active" id="view-mybooking">
+                    <i class="fas fa-calendar-check"></i> <span>Transaction History</span>
+                </li>
+                <li class="nav-item" id="notif">
+                    <i class="fas fa-bell"></i> <span>Notifications</span>
+                </li>
+                <li class="nav-item" id="set">
+                    <i class="fas fa-cog"></i> <span>Settings</span>
+                </li>
+            </ul>
+            <div class="sidebar-profile">
+                <div class="avatar">US</div>
+                <div class="profile-details">
+                    <span class="name">User Portal</span>
+                    <span class="role">Verified Driver</span>
+                </div>
+            </div>
+            <button id="logout" class="logout-btn"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></button>
+        </div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <section class="my-bookings">
+                <h1>My Booking Log</h1>
+                <div class="bookings-grid" id="bookingsList">
+                    <!-- Bookings loaded dynamically by JavaScript -->
+                    <div class="booking-card placeholder">
+                        <div class="booking-details">
+                            <h3>Loading Bookings...</h3>
+                            <p>Please wait while we fetch your rent logs.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Message Modal placeholder if needed -->
+    <div id="messageModal" class="modal" style="display: none;">
+        <div class="modal-content text-center">
+            <span class="close close-btn">&times;</span>
+            <p id="modalMessage" class="mb-lg"></p>
+            <button id="modalOkBtn" class="btn">OK</button>
+        </div>
+    </div>
+
+    <!-- Firebase compatibility layers inside script -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+    
+    <script type="module">
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-database.js";
+        import { database } from "./firebase-config.js";
+
+        function showModal(message) {
+            const modal = document.getElementById("messageModal");
+            const modalMessage = document.getElementById("modalMessage");
+            if (modal && modalMessage) {
+                modalMessage.textContent = message;
+                modal.style.display = "flex";
+                modal.querySelector(".close").onclick = () => modal.style.display = "none";
+                document.getElementById("modalOkBtn").onclick = () => modal.style.display = "none";
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+            const userId = loggedInUser ? loggedInUser.userId : null;
+
+            if (!userId) {
+                showModal("You must be logged in to view bookings.");
+                setTimeout(() => window.location.href = "user-login.html", 2000);
+                return;
+            }
+
+            const bookingsGrid = document.getElementById("bookingsList");
+
+            function fetchBookings() {
+                bookingsGrid.innerHTML = `<div class="loading-card">Loading bookings...</div>`;
+
+                const bookingsRef = ref(database, "active-bookings");
+
+                onValue(
+                    bookingsRef,
+                    (snapshot) => {
+                        const bookings = snapshot.val();
+                        bookingsGrid.innerHTML = "";
+
+                        if (bookings) {
+                            Object.keys(bookings).forEach((key) => {
+                                const booking = bookings[key];
+
+                                if (booking.userId === userId) {
+                                    const bookingCard = document.createElement("div");
+                                    bookingCard.classList.add("booking-card");
+                                    
+                                    const statusClass = (booking.status || 'upcoming').toLowerCase();
+                                    const imageUrl = booking.car?.image || "https://via.placeholder.com/300";
+                                    
+                                    bookingCard.innerHTML = `
+                                        <div class="car-image">
+                                            <img src="${imageUrl}" alt="${booking.car?.carName || 'Vehicle'}" onerror="this.src='https://via.placeholder.com/300'">
+                                        </div>
+                                        <h3>${booking.car?.carName || 'N/A'}</h3>
+                                        <p><strong>Pickup Address:</strong> <span>${booking.fromLocation || 'N/A'}</span></p>
+                                        <p><strong>Destination:</strong> <span>${booking.toLocation || 'N/A'}</span></p>
+                                        <p><strong>Booking Date:</strong> <span>${booking.bookingDate || 'N/A'}</span></p>
+                                        <p><strong>Booking Time:</strong> <span>${booking.bookingTime || 'N/A'}</span></p>
+                                        <p><strong>Status:</strong> <span class="status ${statusClass}">${booking.status || 'upcoming'}</span></p>
+                                    `;
+
+                                    bookingsGrid.appendChild(bookingCard);
+                                }
+                            });
+
+                            if (bookingsGrid.innerHTML === "") {
+                                bookingsGrid.innerHTML = "<div class='no-transactions'>No bookings found.</div>";
+                            }
+                        } else {
+                            bookingsGrid.innerHTML = "<div class='no-transactions'>No bookings available.</div>";
+                        }
+                    },
+                    (error) => {
+                        console.error("Error fetching bookings: ", error);
+                        showModal("Error loading bookings. Please try again later.");
+                    }
+                );
+            }
+
+            fetchBookings();
+        });
+    </script>
+
+    <script type="module" src="book-now.js"></script>
+</body>
+</html>

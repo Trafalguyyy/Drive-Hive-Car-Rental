@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Car</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+        }
+        #map {
+            flex: 1;
+            height: 100%;
+        }
+        .car-list {
+            width: 300px;
+            background: #f4f4f9;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+        }
+        .car-card {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .car-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .car-card h3 {
+            margin: 0;
+            font-size: 18px;
+            color: #333;
+        }
+        .car-card p {
+            margin: 5px 0 0;
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="car-list" id="carList">
+        <h2>🚗 Cars</h2>
+        <!-- Car cards will be dynamically inserted here -->
+    </div>
+    <div id="map"></div>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+  apiKey: "AIzaSyBamJPyOALkoj5NyFWDMnpxijkK7iT5FHM",
+  authDomain: "drivehive-dbe9b.firebaseapp.com",
+  databaseURL: "https://drivehive-dbe9b-default-rtdb.firebaseio.com",
+  projectId: "drivehive-dbe9b",
+  storageBucket: "drivehive-dbe9b.firebasestorage.app",
+  messagingSenderId: "582305437761",
+  appId: "1:582305437761:web:0cd72a831664da4b018ec0",
+  measurementId: "G-YQ7H98NGVQ"
+};
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Initialize the map
+        const map = L.map('map').setView([0, 0], 2);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Custom car icon
+        const carIcon = L.icon({
+            iconUrl: 'https://cdn-icons-png.flaticon.com/128/744/744465.png',
+            iconSize: [40, 40],
+            iconAnchor: [20, 20],
+            popupAnchor: [0, -20]
+        });
+
+        // Marker for the selected car
+        let carMarker = null;
+
+        // Fetch cars from Firebase Realtime Database
+        function fetchCars() {
+            const carsRef = database.ref('cars');
+            carsRef.on('value', (snapshot) => {
+                const carList = document.getElementById("carList");
+                carList.innerHTML = "<h2>🚗 Cars</h2>"; // Reset the list
+
+                snapshot.forEach((childSnapshot) => {
+                    const car = childSnapshot.val();
+                    const carCard = document.createElement("div");
+                    carCard.className = "car-card";
+                    carCard.innerHTML = `
+                        <h3>${car.carName}</h3>
+                        <p>Model: ${car.carModel}</p>
+                        <p>Year: ${car.carYear}</p>
+                        <p>Seats: ${car.numSeats}</p>
+                        <p>Price: ₱${car.rentalPrice}</p>
+                    `;
+                    carCard.addEventListener("click", () => {
+                        fetchGPSData(car.gps_id, car);
+                    });
+                    carList.appendChild(carCard);
+                });
+            }, (error) => {
+                console.error("Error fetching cars: ", error);
+            });
+        }
+
+        // Fetch GPS data for the selected car
+        function fetchGPSData(gpsId, car) {
+            const gpsRef = database.ref('gps_data').orderByChild('gps_id').equalTo(gpsId);
+            gpsRef.on('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    snapshot.forEach((childSnapshot) => {
+                        const gpsData = childSnapshot.val();
+                        displayCarOnMap(car, gpsData);
+                    });
+                } else {
+                    console.error("No GPS data found for GPS ID: ", gpsId);
+                }
+            }, (error) => {
+                console.error("Error fetching GPS data: ", error);
+            });
+        }
+
+        // Display the selected car on the map
+        function displayCarOnMap(car, gpsData) {
+            const { latitude, longitude } = gpsData;
+            const { carName, carModel } = car;
+
+            // Remove the previous marker if it exists
+            if (carMarker) {
+                map.removeLayer(carMarker);
+            }
+
+            // Add a new marker for the selected car
+            carMarker = L.marker([latitude, longitude], { icon: carIcon }).addTo(map);
+            carMarker.bindPopup(`<b>${carName}</b><br>${carModel}`).openPopup();
+
+            // Center the map on the selected car
+            map.setView([latitude, longitude], 15);
+        }
+
+        // Initialize the app
+        function init() {
+            fetchCars();
+        }
+
+        // Run the app
+        document.addEventListener("DOMContentLoaded", init);
+    </script>
+</body>
+</html>

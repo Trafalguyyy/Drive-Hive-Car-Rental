@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Drive Hive</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <img src="DriveHivelogo.png" alt="Drive Hive Logo" class="logo">
+            <h2 class="sidebar-title">DRIVE HIVE</h2>
+            <ul class="nav-links">
+                <li class="nav-item active" id="dashboard">
+                    <i class="fas fa-home"></i> <span>Dashboard</span>
+                </li>
+                <li class="nav-item" id="track-cars">
+                    <i class="fas fa-map-marker-alt"></i> <span>Track Cars</span>
+                </li>
+                <li class="nav-item" id="bookings">
+                    <i class="fas fa-calendar-check"></i> <span>Bookings</span>
+                </li>
+                <li class="nav-item" id="cars">
+                    <i class="fas fa-car"></i> <span>Cars</span>
+                </li>
+                <li class="nav-item" id="users">
+                    <i class="fas fa-users"></i> <span>Users</span>
+                </li>
+                <li class="nav-item" id="settings">
+                    <i class="fas fa-cog"></i> <span>Settings</span>
+                </li>
+            </ul>
+            <div class="sidebar-profile">
+                <div class="avatar">AD</div>
+                <div class="profile-details">
+                    <span class="name">Admin User</span>
+                    <span class="role">System Manager</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Dashboard Content -->
+        <div class="main-content">
+            <div class="top-bar">
+                <div class="top-bar-left">
+                    <div class="breadcrumbs"><a href="dashboard.html">Admin</a> / <span>Dashboard</span></div>
+                    <h1>Dashboard</h1>
+                </div>
+                <div class="top-bar-right">
+                    <div class="search-container">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Search bookings, cars...">
+                    </div>
+                    <button class="message-btn" title="Messages">
+                        <i class="fas fa-envelope"></i>
+                        <span class="message-count">0</span>
+                    </button>
+                    <!-- Notification Button -->
+                    <button class="notif-btn" title="Notifications">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-count">0</span>
+                    </button>
+                    <button class="logout-icon-btn" onclick="logout()" title="Logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="cards">
+                <div class="card" id="totalBookings">
+                    <div class="card-info">
+                        <h3>Total Bookings</h3>
+                        <p>0</p>
+                    </div>
+                    <div class="card-icon-container">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                </div>
+                <div class="card" id="totalCars">
+                    <div class="card-info">
+                        <h3>Total Cars</h3>
+                        <p>0</p>
+                    </div>
+                    <div class="card-icon-container">
+                        <i class="fas fa-car"></i>
+                    </div>
+                </div>
+                <div class="card" id="totalChats">
+                    <div class="card-info">
+                        <h3>Total Alerts</h3>
+                        <p>0</p>
+                    </div>
+                    <div class="card-icon-container">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Booking Tables -->
+            <div class="tables">
+                <div class="table-container">
+                    <h3>Upcoming Bookings</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Car</th>
+                                <th>Car Model</th>
+                                <th>Rental Fee</th>
+                                <th>Destination</th>
+                                <th>Booking Date</th>
+                                <th>Option</th>
+                            </tr>
+                        </thead>
+                        <tbody id="upcomingBookings"></tbody>
+                    </table>
+                </div>
+
+                <div class="table-container">
+                    <h3>Active Bookings</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Car</th>
+                                <th>Car Model</th>
+                                <th>Rental Fee</th>
+                                <th>Destination</th>
+                                <th>Booking Date</th>
+                                <th>Option</th>
+                            </tr>
+                        </thead>
+                        <tbody id="activeBookings"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Messages View Panel -->
+    <div class="messages-view" style="display: none;">
+        <div class="messages-header">
+            <h2>Customer Alerts</h2>
+        </div>
+        <div class="messages-container">
+            <div class="conversation-list">
+                <div class="empty-notice">Loading messages...</div>
+            </div>
+            <div class="message-detail" style="display: none;">
+                <div class="message-header">
+                    <div class="message-user-info">
+                        <img src="user.png" alt="User" class="user-avatar">
+                        <div>
+                            <h4 class="user-name">Select alert</h4>
+                            <span class="user-status">No alert selected</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="message-content">
+                    <div class="empty-notice">Select a message to view details</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Modal -->
+    <div class="notification-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Notifications</h3>
+                <button class="mark-read-btn">Mark all as read</button>
+            </div>
+            <div class="modal-body">
+                <div class="notification-list">
+                    <div class="empty-notice">No new notifications</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script type="module" src="firebase-config.js"></script>
+    <script type="module" src="dashboard.js"></script>
+    <script type="module">
+        import { logout } from "./dashboard.js";
+        window.logout = logout;
+    </script>
+</body>
+
+</html>

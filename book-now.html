@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book a Car - Drive Hive</title>
+    <link rel="stylesheet" href="book-now.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body>
+
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <img src="DriveHivelogo.png" alt="Drive Hive Logo" class="logo">
+            <h2 class="sidebar-title">DRIVE HIVE</h2>
+            <ul class="nav-links">
+                <li class="nav-item" id="dashboard">
+                    <i class="fas fa-home"></i> <span>Dashboard</span>
+                </li>
+                <li class="nav-item" id="Viewmap">
+                    <i class="fas fa-map-marker-alt"></i> <span>Map</span>
+                </li>
+                <li class="nav-item" id="view-mybooking">
+                    <i class="fas fa-calendar-check"></i> <span>Transaction History</span>
+                </li>
+                <li class="nav-item" id="notif">
+                    <i class="fas fa-bell"></i> <span>Notifications</span>
+                </li>
+                <li class="nav-item" id="set">
+                    <i class="fas fa-cog"></i> <span>Settings</span>
+                </li>
+            </ul>
+            <div class="sidebar-profile">
+                <div class="avatar">US</div>
+                <div class="profile-details">
+                    <span class="name">User Portal</span>
+                    <span class="role">Verified Driver</span>
+                </div>
+            </div>
+            <button id="logout" class="logout-btn"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></button>
+        </div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="book-nowbooking">
+                <h1>Rent a Vehicle</h1>
+                <div class="top-bar">
+                    <div class="search-bar">
+                        <input type="text" id="searchInput" placeholder="Search for a car...">
+                        <button id="searchBtn"><i class="fas fa-search"></i></button>
+                    </div>
+                    <button id="filterBtn"><i class="fas fa-filter"></i> Filter</button>
+                </div>
+                
+                <div class="cars-grid" id="carsList">
+                    <!-- Cars will be dynamically loaded here -->
+                    <div class="car-card placeholder">
+                        <div class="car-image"></div>
+                        <div class="car-details">
+                            <h3>Loading Cars...</h3>
+                            <p>Please wait while we fetch the latest cars for you.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Car Details Modal -->
+                <div id="carModal" class="modal">
+                    <div class="modal-content">
+                        <span class="close">&times;</span>
+                        <h2 id="modalTitle">Book This Car</h2>
+                        <div class="modal-body two-column-layout">
+                            <div class="car-info">
+                                <h3 id="modalCarName" class="car-title">Car Name</h3>
+                                <div class="car-specs">
+                                    <div class="spec-grid">
+                                        <div class="spec-item">
+                                            <span class="spec-label">Model</span>
+                                            <span id="modalCarModel" class="spec-value">N/A</span>
+                                        </div>
+                                        <div class="spec-item">
+                                            <span class="spec-label">Year</span>
+                                            <span id="modalCarYear" class="spec-value">N/A</span>
+                                        </div>
+                                        <div class="spec-item">
+                                            <span class="spec-label">Daily Fee</span>
+                                            <span id="modalRentalFee" class="spec-value highlight">N/A</span>
+                                        </div>
+                                        <div class="spec-item">
+                                            <span class="spec-label">Seats</span>
+                                            <span id="modalSeats" class="spec-value">N/A</span>
+                                        </div>
+                                    </div>
+                                    <div class="description-container">
+                                        <h3 class="description-title">Specifications</h3>
+                                        <p id="modalDescription" class="description-text">N/A</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="car-image-side">
+                                <div class="image-wrapper">
+                                    <img id="modalCarImage" src="https://via.placeholder.com/300" alt="Car Image" class="main-image">
+                                </div>
+                                <div class="carousel-container">
+                                    <div class="carousel" id="imageCarousel">
+                                        <!-- Thumbnail images will be added here dynamically -->
+                                    </div>
+                                    <button class="carousel-btn prev" id="carouselPrev"><i class="fas fa-chevron-left"></i></button>
+                                    <button class="carousel-btn next" id="carouselNext"><i class="fas fa-chevron-right"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-actions">
+                            <button id="bookNowBtn" class="primary-btn">Book Now <i class="fas fa-arrow-right"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Destination & User Info Modal -->
+                <div id="destinationModal" class="modal">
+                    <div class="modal-content">
+                        <span class="close">&times;</span>
+                        <h2>Rent Details</h2>
+                        <div class="modal-body">
+                            <form id="destinationForm">
+                                <div class="form-group">
+                                    <label for="fullName">Full Name:</label>
+                                    <input type="text" id="fullName" placeholder="Enter your full name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="bookingDate">Booking Date:</label>
+                                    <input type="date" id="bookingDate" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="bookingTime">Booking Time:</label>
+                                    <input type="time" id="bookingTime" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="fromLocation">Pickup Location:</label>
+                                    <input type="text" id="fromLocation" placeholder="Enter pickup address" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="toLocation">Dropoff Destination:</label>
+                                    <input type="text" id="toLocation" placeholder="Enter destination address" required>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-actions">
+                            <button id="confirmDestinationBtn">Confirm Booking</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Message Modal -->
+                <div id="messageModal" class="modal">
+                    <div class="modal-content">
+                        <span class="close">&times;</span>
+                        <p id="modalMessage"></p>
+                        <button id="modalOkBtn">OK</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Firebase compatibility layers inside script -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+    <script type="module" src="book-now.js"></script>
+</body>
+</html>

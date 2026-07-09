@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Active GPS Tracking | Drive Hive</title>
+    <link rel="stylesheet" href="user-dashboard.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+    <script src="https://unpkg.com/leaflet-control-geocoder@2.4.0/dist/Control.Geocoder.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        .main-content {
+            display: flex;
+            position: relative;
+            padding: 0 !important;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* Telemetry Dashboard (Tesla-Cockpit Style) */
+        .dashboard {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            background: rgba(18, 18, 22, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            color: var(--dh-white);
+            padding: 24px;
+            border-radius: var(--radius-lg);
+            width: 320px;
+            z-index: 1000;
+            box-shadow: var(--shadow-xl);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all var(--transition-base);
+        }
+
+        .dashboard.hidden {
+            transform: translateX(360px);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .dashboard h2 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--dh-white);
+            margin-bottom: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 12px;
+        }
+
+        .dashboard input {
+            width: 100%;
+            padding: 10px 14px;
+            margin-bottom: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            color: var(--dh-white);
+            outline: none;
+        }
+
+        .dashboard button {
+            width: 100%;
+            padding: 12px;
+            background: var(--dh-red);
+            color: var(--dh-white);
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background var(--transition-fast);
+        }
+
+        .dashboard button:hover {
+            background: var(--dh-red-hover);
+        }
+
+        .info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: var(--radius-sm);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .info b {
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .info span {
+            font-weight: 700;
+            color: var(--dh-white);
+        }
+
+        /* Speed and distance highlight values */
+        #speed, #distanceToDestination {
+            color: var(--dh-red);
+        }
+
+        #baseFeeDisplay {
+            color: var(--dh-success);
+        }
+
+        .warning {
+            color: var(--dh-red);
+            font-weight: 700;
+            margin-top: 12px;
+            text-align: center;
+            font-size: 0.8rem;
+        }
+
+        .notification {
+            background: rgba(229, 57, 53, 0.2);
+            border: 1px solid var(--dh-red);
+            color: #ff4d4d;
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            margin-top: 12px;
+            text-align: center;
+            display: none;
+            font-size: 0.8rem;
+            font-weight: 600;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Floating controls toggle button */
+        .toggle-button {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            background: var(--dh-dark);
+            color: var(--dh-white);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: var(--radius-full);
+            width: 44px;
+            height: 44px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            z-index: 1001;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-fast);
+        }
+
+        .toggle-button:hover {
+            background: var(--dh-red);
+            border-color: var(--dh-red);
+        }
+
+        .going-back-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--dh-success) !important;
+            color: var(--dh-white);
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background var(--transition-fast);
+            margin-top: 12px;
+            display: none;
+        }
+
+        .going-back-btn:hover {
+            background: #2e7d32 !important;
+        }
+
+        /* Map Modals */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .modal-content {
+            background: var(--dh-white);
+            border-radius: var(--radius-xl);
+            padding: 32px;
+            box-shadow: var(--shadow-xl);
+            border: 1px solid var(--dh-border);
+            text-align: center;
+            width: 320px;
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 14px;
+            right: 16px;
+            font-size: 1.25rem;
+            cursor: pointer;
+            color: var(--dh-text-muted);
+            transition: color var(--transition-fast);
+        }
+
+        .close-modal:hover {
+            color: var(--dh-red);
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+                height: calc(100vh - 70px);
+            }
+            .dashboard {
+                width: calc(100% - 32px);
+                right: 16px; left: 16px;
+                top: 16px;
+            }
+            .toggle-button {
+                top: 16px; right: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <img src="DriveHivelogo.png" alt="Drive Hive Logo" class="logo">
+            <h2 class="sidebar-title">DRIVE HIVE</h2>
+            <ul class="nav-links">
+                <li class="nav-item" id="dashboard">
+                    <i class="fas fa-home"></i> <span>Dashboard</span>
+                </li>
+                <li class="nav-item active" id="Viewmap">
+                    <i class="fas fa-map-marker-alt"></i> <span>Map</span>
+                </li>
+                <li class="nav-item" id="trans">
+                    <i class="fas fa-calendar-check"></i> <span>Transaction History</span>
+                </li>
+                <li class="nav-item" id="notif">
+                    <i class="fas fa-bell"></i> <span>Notifications</span>
+                </li>
+                <li class="nav-item" id="set">
+                    <i class="fas fa-cog"></i> <span>Settings</span>
+                </li>
+            </ul>
+            <div class="sidebar-profile">
+                <div class="avatar">US</div>
+                <div class="profile-details">
+                    <span class="name">User Portal</span>
+                    <span class="role">Verified Driver</span>
+                </div>
+            </div>
+            <button id="logout" class="logout-btn"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></button>
+        </div>
+
+        <!-- Main Map Area -->
+        <div class="main-content">
+            <div id="map"></div>
+            <button class="toggle-button" id="toggleButton">☰</button>
+            
+            <div class="dashboard" id="dashboardPanel">
+                <h2>🚗 Telemetry</h2>
+                <input type="text" id="from" placeholder="Starting point" readonly>
+                <input type="text" id="to" placeholder="Destination point" readonly>
+                <button id="setRoute" style="display: none;">Set Route</button>
+                
+                <div class="info"><b>Speed:</b> <span id="speed">0 km/h</span></div>
+                <div class="info"><b>Latitude:</b> <span id="latitude">Loading...</span></div>
+                <div class="info"><b>Longitude:</b> <span id="longitude">Loading...</span></div>
+                <div class="info"><b>Distance remaining:</b> <span id="distanceToDestination">0 km</span></div>
+                <div class="info" style="display: none;"><b>Beyond destination:</b> <span id="distanceBeyondDestination">0 km</span></div>
+                <div class="info"><b>Rental Fee:</b> <span id="baseFeeDisplay">₱0.00</span></div>
+                <div class="info" style="display: none;"><b>Fee:</b> <span id="fee">₱0.00</span></div>
+                
+                <button id="goingBackBtn" class="going-back-btn">Going Back</button>
+                <div class="notification" id="notification">⚠️ Went beyond the geofence perimeter!</div>
+                <div class="warning" id="warning"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <p id="modal-message"></p>
+        </div>
+    </div>
+    
+    <audio id="notificationSound" src="notification.mp3"></audio>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBamJPyOALkoj5NyFWDMnpxijkK7iT5FHM",
+            authDomain: "drivehive-dbe9b.firebaseapp.com",
+            databaseURL: "https://drivehive-dbe9b-default-rtdb.firebaseio.com",
+            projectId: "drivehive-dbe9b",
+            storageBucket: "drivehive-dbe9b.firebasestorage.app",
+            messagingSenderId: "582305437761",
+            appId: "1:582305437761:web:0cd72a831664da4b018ec0",
+            measurementId: "G-YQ7H98NGVQ"
+        };
+        
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Drive Hive Office - fixed pickup location
+        const DRIVE_HIVE_OFFICE = [7.0499902, 125.5730382];
+
+        // Car Icon for Map (GPS tracker)
+        const carIcon = L.icon({
+            iconUrl: 'https://cdn-icons-png.flaticon.com/512/741/741407.png',
+            iconSize: [40, 40],
+            iconAnchor: [20, 20],
+            popupAnchor: [0, -20]
+        });
+
+        // Pickup (Drive Hive Office) Icon
+        const pickupIcon = L.icon({
+            iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png',
+            iconSize: [36, 36],
+            iconAnchor: [18, 36],
+            popupAnchor: [0, -36]
+        });
+
+        // Destination Icon
+        const destinationIcon = L.icon({
+            iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684850.png',
+            iconSize: [36, 36],
+            iconAnchor: [18, 36],
+            popupAnchor: [0, -36]
+        });
+        
+        // Global Variables
+        let lastSavedFee = 0;
+        let saveInterval;
+        let stoppedTimer = null;
+        let baseFee = 0;
+        const extraFeePer5Km = 100;
+        const destinationRadius = 5;
+        const BOUNDARY_PADDING = 300; // meters of padding around the midpoint circle
+        let hasExceededNotificationSent = false;
+        let destinationExceeded = false;
+        let currentBookingId = null;
+        let interval = null;
+        let previousLocation = null;
+        let marker;
+        let pickupMarker = null;
+        let destinationMarker = null;
+        let routeLine = null;
+        let boundaryCircle = null;
+        let map;
+        let fromLocation = null;
+        let toLocation = null;
+        let startLocation = null;
+        let totalDistance = 0;
+        let totalFee = 0;
+        let destinationBoundaryLayer = null;
+        let isInsideDestinationBoundary = true;
+        let boundaryExceedDistance = 0;
+
+        // Initialize the application when DOM is loaded
+        document.addEventListener("DOMContentLoaded", function () {
+            initializeMap();
+            setupEventListeners();
+            loadBookingData();
+            startAutoSave();
+            updateLocation();
+        });
+
+        function initializeMap() {
+            map = L.map('map').setView(DRIVE_HIVE_OFFICE, 14);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+
+            // GPS car tracker marker
+            marker = L.marker(DRIVE_HIVE_OFFICE, { icon: carIcon }).addTo(map);
+            marker.bindPopup("Your Car");
+
+            // Drive Hive Office pickup marker
+            pickupMarker = L.marker(DRIVE_HIVE_OFFICE, { icon: pickupIcon }).addTo(map);
+            pickupMarker.bindPopup("<b>Drive Hive Office</b><br>Pickup Point").openPopup();
+        }
+
+        function setupEventListeners() {
+            // Navigation event listeners
+            document.getElementById("dashboard").addEventListener("click", () => {
+                window.location.href = "user-dashboard.html";
+            });
+            document.getElementById("Viewmap").addEventListener("click", () => {
+                window.location.href = "index11.html";
+            });
+            document.getElementById("trans").addEventListener("click", () => {
+                window.location.href = "my-bookings.html";
+            });
+            document.getElementById("notif").addEventListener("click", () => {
+                window.location.href = "user-dashboard.html";
+            });
+            document.getElementById("set").addEventListener("click", () => {
+                window.location.href = "user-settings.html";
+            });
+            document.getElementById("logout").addEventListener("click", () => {
+                if (confirm("Are you sure you want to log out?")) {
+                    localStorage.removeItem("loggedInUser");
+                    window.location.href = "user-login.html";
+                }
+            });
+
+            // Toggle Dashboard Visibility
+            const toggleButton = document.getElementById('toggleButton');
+            const dashboard = document.getElementById('dashboardPanel');
+            toggleButton.addEventListener('click', () => {
+                dashboard.classList.toggle('hidden');
+                toggleButton.textContent = dashboard.classList.contains('hidden') ? '☰' : '×';
+            });
+
+            // Set Route Button
+            document.getElementById("setRoute").addEventListener("click", function () {
+                let fromAddress = document.getElementById("from").value;
+                let toAddress = document.getElementById("to").value;
+
+                if (interval) {
+                    clearInterval(interval);
+                    interval = null;
+                }
+
+                totalDistance = 0;
+                totalFee = 0;
+                previousLocation = null;
+
+                getCoordinates(fromAddress, function(coords) {
+                    fromLocation = coords;
+                    startLocation = coords;
+
+                    getCoordinates(toAddress, function(toCoords) {
+                        toLocation = toCoords;
+
+                        // Update the route display with both markers, polyline, and circle
+                        updateRouteDisplay(toCoords, toAddress);
+
+                        // Start GPS tracking
+                        interval = setInterval(updateLocation, 2000);
+                    });
+                });
+            });
+
+            // Going Back Button with debounce
+            const goingBackBtn = document.getElementById("goingBackBtn");
+            goingBackBtn.addEventListener("click", debounce(handleGoingBack, 2000));
+
+            // Request Notification Permission
+            if ('Notification' in window) {
+                Notification.requestPermission().then(permission => {
+                    if (permission !== 'granted') {
+                        console.warn('Notification permission not granted.');
+                    }
+                });
+            }
+        }
+
+
+        // Display pickup + destination markers, polyline, and enclosing circle
+        function updateRouteDisplay(destCoords, destAddress) {
+            // Remove old destination marker, route line, and circle
+            if (destinationMarker) {
+                map.removeLayer(destinationMarker);
+                destinationMarker = null;
+            }
+            if (routeLine) {
+                map.removeLayer(routeLine);
+                routeLine = null;
+            }
+            if (boundaryCircle) {
+                map.removeLayer(boundaryCircle);
+                boundaryCircle = null;
+            }
+
+            if (destCoords && destAddress) {
+                // Add destination marker
+                destinationMarker = L.marker(destCoords, { icon: destinationIcon }).addTo(map);
+                destinationMarker.bindPopup("<b>Destination</b><br>" + destAddress);
+
+                // Draw polyline from Drive Hive office to destination
+                routeLine = L.polyline([DRIVE_HIVE_OFFICE, destCoords], {
+                    color: '#007bff',
+                    weight: 4,
+                    opacity: 0.7,
+                    dashArray: '10, 10'
+                }).addTo(map);
+
+                // Calculate geographic midpoint
+                const midLat = (DRIVE_HIVE_OFFICE[0] + destCoords[0]) / 2;
+                const midLng = (DRIVE_HIVE_OFFICE[1] + destCoords[1]) / 2;
+                const midpoint = [midLat, midLng];
+
+                // Calculate straight-line distance between the two points (meters using Leaflet)
+                const pickupLatLng = L.latLng(DRIVE_HIVE_OFFICE[0], DRIVE_HIVE_OFFICE[1]);
+                const destLatLng = L.latLng(destCoords[0], destCoords[1]);
+                const distMeters = pickupLatLng.distanceTo(destLatLng);
+
+                // Circle radius = half distance + configurable padding
+                const circleRadius = (distMeters / 2) + BOUNDARY_PADDING;
+
+                // Create the enclosing circle
+                boundaryCircle = L.circle(midpoint, {
+                    radius: circleRadius,
+                    color: '#ff4444',
+                    weight: 2,
+                    opacity: 0.6,
+                    fillColor: '#ff4444',
+                    fillOpacity: 0.08
+                }).addTo(map);
+
+                // Adjust map view so the entire circle is visible
+                map.fitBounds(boundaryCircle.getBounds(), { padding: [30, 30] });
+            } else {
+                // No destination yet - center on Drive Hive office
+                map.setView(DRIVE_HIVE_OFFICE, 14);
+            }
+        }
+
+        function loadBookingData() {
+    const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+    if (!loggedInUser || !loggedInUser.userId) {
+        console.error("User not logged in or userId not found in localStorage.");
+        return;
+    }
+
+    const userId = loggedInUser.userId;
+    const bookingRef = database.ref('active-bookings').orderByChild('userId').equalTo(userId).limitToLast(1);
+    
+    bookingRef.on('value', (snapshot) => {
+        if (snapshot.exists()) {
+            const bookingData = snapshot.val();
+            const bookingKey = Object.keys(bookingData)[0];
+            currentBookingId = bookingKey;
+            const booking = bookingData[bookingKey];
+            
+            const rentalPrice = booking.car?.rentalPrice || '0';
+            baseFee = Number(rentalPrice) || 0;
+            
+            document.getElementById("baseFeeDisplay").textContent = "₱" + baseFee.toFixed(2);
+            
+            if (booking.fromLocation && booking.toLocation) {
+                document.getElementById("from").value = booking.fromLocation;
+                document.getElementById("to").value = booking.toLocation;
+
+                // Geocode both pickup and destination
+                getCoordinates(booking.fromLocation, function(fromCoords) {
+                    fromLocation = fromCoords;
+                    startLocation = fromCoords;
+
+                    getCoordinates(booking.toLocation, function(toCoords) {
+                        toLocation = toCoords;
+
+                        // Update route display: two markers + polyline + circle
+                        updateRouteDisplay(toCoords, booking.toLocation);
+
+                        // Set up destination boundary for fee calculation
+                        addCityBoundary(toCoords[0], toCoords[1], true);
+
+                        // Trigger route setup (starts GPS tracking)
+                        document.getElementById("setRoute").click();
+                    });
+                });
+            } else if (booking.fromLocation && !booking.toLocation) {
+                // Only pickup available - show just the Drive Hive marker
+                document.getElementById("from").value = booking.fromLocation;
+                updateRouteDisplay(null, null);
+            }
+        } else {
+            console.error("No booking data found for user:", userId);
+        }
+    });
+}
+async function addCityBoundary(lat, lng, isDestination = false) {
+    try {
+        // Create a temporary layer group for the new boundary
+        const tempBoundaryLayer = L.layerGroup();
+        
+        // First get city information using Nominatim
+        const nominatimResponse = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`
+        );
+        const nominatimData = await nominatimResponse.json();
+        
+        const cityName = nominatimData.address.city || nominatimData.address.town || 
+                        nominatimData.address.village || (isDestination ? "Destination" : "Current Location");
+        
+        // Search for the city's administrative boundary using Nominatim search
+        const searchResponse = await fetch(
+            `https://nominatim.openstreetmap.org/search?city=${encodeURIComponent(cityName)}&format=json&polygon_geojson=1&type=administrative`
+        );
+        const searchData = await searchResponse.json();
+
+        if (searchData && searchData.length > 0) {
+            const cityBoundary = searchData[0];
+            
+            if (cityBoundary.geojson) {
+                L.geoJSON(cityBoundary.geojson, {
+                    style: {
+                        color: isDestination ? '#ff4444' : '#3388ff',
+                        weight: 3,
+                        opacity: 0.7,
+                        fillOpacity: 0.1,
+                        fillColor: isDestination ? '#ff4444' : '#3388ff'
+                    }
+                }).addTo(tempBoundaryLayer);
+            }
+        } else {
+            // Fallback to Overpass API
+            const overpassQuery = `
+                [out:json];
+                (
+                    relation["boundary"="administrative"]["admin_level"="8"]["name"="${cityName}"];
+                    way["boundary"="administrative"]["admin_level"="8"]["name"="${cityName}"];
+                );
+                (._;>;);
+                out body;
+            `;
+            
+            const overpassResponse = await fetch(
+                `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(overpassQuery)}`
+            );
+            const overpassData = await overpassResponse.json();
+
+            if (overpassData.elements && overpassData.elements.length > 0) {
+                const boundaryElements = overpassData.elements.filter(el => 
+                    (el.type === 'relation' || el.type === 'way') && 
+                    el.tags && 
+                    el.tags.boundary === 'administrative'
+                );
+
+                boundaryElements.forEach(element => {
+                    if (element.type === 'relation') {
+                        const members = overpassData.elements.filter(el => 
+                            element.members.some(m => m.type === el.type && m.ref === el.id)
+                        );
+                        
+                        members.forEach(member => {
+                            if (member.type === 'way') {
+                                const nodes = overpassData.elements.filter(el => 
+                                    el.type === 'node' && member.nodes.includes(el.id)
+                                );
+                                const coords = nodes.map(node => [node.lat, node.lon]);
+                                if (coords.length >= 3) {
+                                    L.polygon(coords, {
+                                        color: isDestination ? '#ff4444' : '#3388ff',
+                                        weight: 3,
+                                        opacity: 0.7,
+                                        fillOpacity: 0.1,
+                                        fillColor: isDestination ? '#ff4444' : '#3388ff'
+                                    }).addTo(tempBoundaryLayer);
+                                }
+                            }
+                        });
+                    } else if (element.type === 'way') {
+                        const nodes = overpassData.elements.filter(el => 
+                            el.type === 'node' && element.nodes.includes(el.id)
+                        );
+                        const coords = nodes.map(node => [node.lat, node.lon]);
+                        if (coords.length >= 3) {
+                            L.polygon(coords, {
+                                color: isDestination ? '#ff4444' : '#3388ff',
+                                weight: 3,
+                                opacity: 0.7,
+                                fillOpacity: 0.1,
+                                fillColor: isDestination ? '#ff4444' : '#3388ff'
+                            }).addTo(tempBoundaryLayer);
+                        }
+                    }
+                });
+            }
+        }
+
+        // If we didn't find any boundary data, use a circle as fallback
+        if (tempBoundaryLayer.getLayers().length === 0) {
+            L.circle([lat, lng], {
+                radius: 5000,
+                color: isDestination ? '#ff4444' : '#3388ff',
+                weight: 3,
+                opacity: 0.7,
+                fillOpacity: 0.1,
+                fillColor: isDestination ? '#ff4444' : '#3388ff'
+            }).addTo(tempBoundaryLayer);
+        }
+
+        // For destination boundary, store it separately
+        if (isDestination) {
+            if (destinationBoundaryLayer) {
+                map.removeLayer(destinationBoundaryLayer);
+            }
+            destinationBoundaryLayer = tempBoundaryLayer;
+            destinationBoundaryLayer.addTo(map);
+        } else {
+            // For current location boundary (if needed)
+            if (window.cityBoundaryLayer) {
+                map.removeLayer(window.cityBoundaryLayer);
+            }
+            window.cityBoundaryLayer = tempBoundaryLayer;
+            window.cityBoundaryLayer.addTo(map);
+        }
+
+    } catch (error) {
+        console.error("Error fetching boundary:", error);
+        // Fallback to simple circle if everything fails
+        if (isDestination) {
+            if (destinationBoundaryLayer) {
+                map.removeLayer(destinationBoundaryLayer);
+            }
+            destinationBoundaryLayer = L.circle([lat, lng], {
+                radius: 5000,
+                color: '#ff4444',
+                weight: 3,
+                opacity: 0.7,
+                fillOpacity: 0.1,
+                fillColor: '#ff4444'
+            }).addTo(map);
+        } else {
+            if (window.cityBoundaryLayer) {
+                map.removeLayer(window.cityBoundaryLayer);
+            }
+            window.cityBoundaryLayer = L.circle([lat, lng], {
+                radius: 5000,
+                color: '#3388ff',
+                weight: 3,
+                opacity: 0.7,
+                fillOpacity: 0.1,
+                fillColor: '#3388ff'
+            }).addTo(map);
+        }
+    }
+}
+
+
+
+        
+        // Debounce function to prevent multiple rapid clicks
+        function debounce(func, timeout = 2000) {
+            let timer;
+            return (...args) => {
+                clearTimeout(timer);
+                timer = setTimeout(() => { 
+                    func.apply(this, args); 
+                }, timeout);
+            };
+        }
+
+        async function handleGoingBack() {
+            const goingBackBtn = document.getElementById("goingBackBtn");
+            goingBackBtn.disabled = true;
+            goingBackBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            
+            // Add confirmation dialog
+            const confirmed = confirm("Are you sure you want to end this trip and proceed to payment?");
+            if (!confirmed) {
+                goingBackBtn.disabled = false;
+                goingBackBtn.innerHTML = 'Going Back';
+                return;
+            }
+
+            // Get the final fee
+            const finalFee = parseFloat(document.getElementById("fee").textContent.replace("₱", ""));
+            if (finalFee < 1 || baseFee === 0) {
+                showModal("No valid booking data found.");
+                goingBackBtn.disabled = false;
+                goingBackBtn.innerHTML = 'Going Back';
+                return;
+            }
+
+            try {
+                // Get the logged-in user from localStorage
+                const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+                if (!loggedInUser || !loggedInUser.userId) {
+                    showModal("User not logged in or missing user ID.");
+                    return;
+                }
+
+                const userId = loggedInUser.userId || '';
+                const email = loggedInUser.email || '';
+                const firstname = loggedInUser.firstname || '';
+
+                // Get booking data
+                const bookingRef = database.ref(`active-bookings/${currentBookingId}`);
+                const bookingSnapshot = await bookingRef.once('value');
+                const bookingData = bookingSnapshot.val();
+
+                if (!bookingData) {
+                    showModal("Booking data not found.");
+                    return;
+                }
+
+                // Get car details
+                const carDetails = bookingData.car || {};
+                
+                // Prepare the bill data
+                const billData = {
+                    userInfo: { userId, email, firstname },
+                    bookingInfo: {
+                        bookingId: currentBookingId,
+                        bookingDate: bookingData.bookingDate || '',
+                        bookingDateTime: bookingData.bookingDateTime || '',
+                        bookingTime: bookingData.bookingTime || '',
+                        fromLocation: bookingData.fromLocation || '',
+                        toLocation: bookingData.toLocation || '',
+                        booking_status: 'completed',
+                        originalTimestamp: bookingData.timestamp || new Date().toISOString()
+                    },
+                    carInfo: {
+                        carModel: carDetails.carModel || '',
+                        carName: carDetails.carName || '',
+                        carYear: carDetails.carYear || '',
+                        licensePlate: carDetails.licensePlate || '',
+                        numSeats: carDetails.numSeats || '',
+                        gpsId: carDetails.gps_id || ''
+                    },
+                    paymentInfo: {
+                        finalFee,
+                        paymentDate: new Date().toISOString(),
+                        paymentStatus: "completed"
+                    }
+                };
+
+                // Generate a unique bill ID
+                const billId = `bill_${currentBookingId}_${Date.now()}`;
+                
+                // Use update() to write to specific paths
+                const updates = {};
+                updates[`Transactionhistory/${billId}`] = billData;
+                updates[`active-bookings/${currentBookingId}/booking_status`] = 'completed';
+                
+                // Perform the update
+                await database.ref().update(updates);
+
+                console.log("Bill created and booking marked as completed!");
+                showModal("Payment recorded. Thank you for using Drive Hive!", "user-dashboard.html");
+                
+            } catch (error) {
+                console.error("Error processing payment:", error);
+                showModal("An error occurred. Please try again.");
+                goingBackBtn.disabled = false;
+                goingBackBtn.innerHTML = 'Going Back';
+            }
+        }
+
+        function startAutoSave() {
+            // Save every 30 seconds (adjust as needed)
+            saveInterval = setInterval(async () => {
+                const currentFee = parseFloat(document.getElementById("fee").textContent.replace("₱", ""));
+                
+                // Only save if fee has changed significantly (by at least ₱1)
+                if (Math.abs(currentFee - lastSavedFee) >= 1) {
+                    try {
+                        if (currentBookingId) {
+                            await database.ref(`active-bookings/${currentBookingId}/currentFee`).set(currentFee);
+                            console.log("Auto-saved current fee:", currentFee);
+                            lastSavedFee = currentFee;
+                        }
+                    } catch (error) {
+                        console.error("Error auto-saving fee:", error);
+                    }
+                }
+            }, 30000); // 30 seconds
+        }
+
+        function updateLocation() {
+    const gpsRef = database.ref('gps_data').orderByKey().limitToLast(1);
+
+    gpsRef.on('value', (snapshot) => {
+        if (snapshot.exists()) {
+            const data = snapshot.val();
+            const latestKey = Object.keys(data)[0];
+            const latestData = data[latestKey];
+
+            const lat = parseFloat(latestData.latitude);
+            const lng = parseFloat(latestData.longitude);
+            const speed = latestData.speed || 0;
+
+            // Update marker position and map view
+            marker.setLatLng([lat, lng]);
+            map.setView([lat, lng]);
+            document.getElementById("latitude").textContent = lat.toFixed(6);
+            document.getElementById("longitude").textContent = lng.toFixed(6);
+            document.getElementById("speed").textContent = speed.toFixed(2) + " km/h";
+
+            // Calculate cumulative distance
+            if (previousLocation) {
+                const distance = getDistance(previousLocation[0], previousLocation[1], lat, lng);
+                totalDistance += distance;
+            }
+
+            previousLocation = [lat, lng];
+
+                    if (toLocation && destinationBoundaryLayer) {
+            const currentPoint = L.latLng(lat, lng);
+            
+            // Check if current location is within destination boundary
+            const wasInside = isInsideDestinationBoundary;
+            isInsideDestinationBoundary = isPointInBoundary(currentPoint, destinationBoundaryLayer);
+            
+            const distanceToDestination = getDistance(lat, lng, toLocation[0], toLocation[1]);
+            document.getElementById("distanceToDestination").textContent = distanceToDestination.toFixed(2) + ' km';
+
+            // Calculate distance beyond destination boundary
+            if (!isInsideDestinationBoundary) {
+                boundaryExceedDistance = calculateDistanceToBoundary(currentPoint, destinationBoundaryLayer);
+                
+                document.getElementById("notification").style.display = "block";
+                showNotification('⚠️ You have gone beyond the destination boundary!');
+                
+                if (!hasExceededNotificationSent) {
+                    sendExceedNotificationToAdmin(lat, lng, boundaryExceedDistance);
+                    hasExceededNotificationSent = true;
+                }
+            } else {
+                boundaryExceedDistance = 0;
+                document.getElementById("notification").style.display = "none";
+                hasExceededNotificationSent = false;
+            }
+            
+            document.getElementById("distanceBeyondDestination").textContent = boundaryExceedDistance.toFixed(2) + ' km';
+
+            // Calculate fee - only add extra charges when outside boundary
+            totalFee = baseFee;
+
+            if (!isInsideDestinationBoundary && boundaryExceedDistance > 0) {
+                const kilometersBeyond = Math.ceil(boundaryExceedDistance);
+                const extraFee = (kilometersBeyond / 5) * extraFeePer5Km; // ₱100 per 5km
+                totalFee += extraFee;
+                
+                document.getElementById("warning").textContent = 
+                    `⚠️ Outside Destination Boundary! Extra Fee: ₱${extraFee.toFixed(2)} ` +
+                    `(₱${extraFeePer5Km} per 5km beyond boundary)`;
+            } else {
+                document.getElementById("warning").textContent = "";
+            }
+
+            document.getElementById("fee").textContent = "₱" + totalFee.toFixed(2);
+        }
+                } else {
+                    console.error("No GPS data available");
+                }
+            });
+        }
+
+
+function isPointInBoundary(point, boundaryLayer) {
+    if (!boundaryLayer || !point) return true; // Default to inside if boundary not loaded
+    
+    let inside = false;
+    let layersProcessed = 0;
+    
+    boundaryLayer.eachLayer(function(layer) {
+        try {
+            layersProcessed++;
+            if (L.Polygon && layer instanceof L.Polygon) {
+                const latlngs = layer.getLatLngs();
+                
+                // Handle both simple polygons and multipolygons
+                if (Array.isArray(latlngs[0])) {
+                    // Multipolygon - check each polygon
+                    latlngs.forEach(polygon => {
+                        if (L.PolyUtil.pointInPolygon(point, polygon)) {
+                            inside = true;
+                        }
+                    });
+                } else {
+                    // Simple polygon
+                    if (L.PolyUtil.pointInPolygon(point, latlngs)) {
+                        inside = true;
+                    }
+                }
+            } 
+            else if (L.Circle && layer instanceof L.Circle) {
+                const center = layer.getLatLng();
+                const radius = layer.getRadius();
+                if (center.distanceTo(point) <= radius) {
+                    inside = true;
+                }
+            }
+        } catch (e) {
+            console.error("Error checking point in boundary:", e);
+        }
+    });
+    
+    // If we didn't process any layers, assume we're inside
+    return layersProcessed > 0 ? inside : true;
+}
+
+
+
+function calculateDistanceToBoundary(point, boundaryLayer) {
+    if (!boundaryLayer || !point) return 0;
+    
+    let minDistance = Infinity;
+    let layersProcessed = 0;
+    
+    boundaryLayer.eachLayer(function(layer) {
+        try {
+            layersProcessed++;
+            if (L.Polygon && layer instanceof L.Polygon) {
+                const latlngs = layer.getLatLngs();
+                
+                // Handle both simple and multi polygons
+                const polygons = Array.isArray(latlngs[0]) ? latlngs : [latlngs];
+                
+                polygons.forEach(polygon => {
+                    // First check if point is inside this polygon
+                    if (L.PolyUtil.pointInPolygon(point, polygon)) {
+                        minDistance = 0;
+                        return;
+                    }
+                    
+                    // If outside, calculate distance to nearest edge
+                    for (let i = 0; i < polygon.length; i++) {
+                        const start = polygon[i];
+                        const end = polygon[(i + 1) % polygon.length];
+                        const segmentDistance = L.LineUtil.pointToSegmentDistance(
+                            point, start, end
+                        );
+                        if (segmentDistance < minDistance) {
+                            minDistance = segmentDistance;
+                        }
+                    }
+                });
+            } 
+            else if (L.Circle && layer instanceof L.Circle) {
+                const center = layer.getLatLng();
+                const radius = layer.getRadius();
+                const distance = center.distanceTo(point) - radius;
+                if (distance < minDistance) minDistance = distance;
+            }
+        } catch (e) {
+            console.error("Error calculating layer distance:", e);
+        }
+    });
+    
+    // If no layers processed or still Infinity, return 0
+    if (layersProcessed === 0 || !isFinite(minDistance)) {
+        return 0;
+    }
+    
+    // Convert meters to kilometers and ensure non-negative
+    return Math.max(0, minDistance / 1000);
+}
+
+
+
+
+
+
+
+
+
+        async function sendExceedNotificationToAdmin(currentLat, currentLng, distanceBeyond) {
+            try {
+                if (!currentBookingId) return;
+
+                const bookingRef = database.ref(`active-bookings/${currentBookingId}`);
+                const bookingSnapshot = await bookingRef.once('value');
+                const bookingData = bookingSnapshot.val();
+
+                if (!bookingData) {
+                    console.error("No booking data found");
+                    return;
+                }
+
+                const notificationRef = database.ref('messages/admin_notifications').push();
+                await notificationRef.set({
+                    bookingId: currentBookingId,
+                    userId: bookingData.userId,
+                    userName: bookingData.fullName || 'Unknown User',
+                    carName: bookingData.car?.carName || 'Unknown Car',
+                    originalToLocation: bookingData.toLocation,
+                    currentLocation: `${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`,
+                    distanceBeyond: distanceBeyond.toFixed(2),
+                    timestamp: Date.now(),
+                    status: "unread",
+                    notified: false
+                });
+
+                console.log("Admin notification sent for exceeded destination");
+                await bookingRef.update({ exceedNotificationSent: true });
+
+            } catch (error) {
+                console.error("Error sending exceed notification to admin:", error);
+            }
+        }
+
+        function getDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Earth's radius in km
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+        }
+
+        function getCoordinates(address, callback) {
+            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${address}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length > 0) {
+                        callback([parseFloat(data[0].lat), parseFloat(data[0].lon)]);
+                    } else {
+                        console.error("Address not found:", address);
+                    }
+                })
+                .catch(error => console.error("Error fetching coordinates:", error));
+        }
+            // Add this function to your script
+          
+
+
+
+
+
+
+
+
+
+function showNotification(message) {
+            if ('Notification' in window && Notification.permission === 'granted') {
+                new Notification('Drive Hive Alert', {
+                    body: message,
+                    icon: 'https://cdn-icons-png.flaticon.com/128/744/744465.png'
+                });
+
+                const notificationSound = document.getElementById('notificationSound');
+                notificationSound.play();
+            } else {
+                console.warn('Notifications not supported or permission not granted.');
+            }
+        }
+
+        function showModal(message, redirectUrl = null) {
+            const modal = document.getElementById("modal");
+            const modalMessage = document.getElementById("modal-message");
+            modalMessage.textContent = message;
+            modal.style.display = "flex";
+
+            if (redirectUrl) {
+                setTimeout(() => {
+                    window.location.href = redirectUrl;
+                }, 3000);
+            }
+        }
+    </script>
+    <script type="module" src="book-now.js"></script> 
+</body>
+</html>

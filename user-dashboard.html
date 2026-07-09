@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+    <link rel="stylesheet" href="user-dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- Remove this line -->
+<script type="module" src="user-dashboard.js"></script>
+    <!-- Global layout handled by user-dashboard.css -->
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <img src="DriveHivelogo.png" alt="Drive Hive Logo" class="logo">
+            <h2 class="sidebar-title">DRIVE HIVE</h2>
+            <ul class="nav-links">
+                <li class="nav-item active" id="dashboard">
+                    <i class="fas fa-home"></i> <span>Dashboard</span>
+                </li>
+                <li class="nav-item" id="Map">
+                    <i class="fas fa-map-marker-alt"></i> <span>Map</span>
+                </li>
+                <li class="nav-item" id="bookings">
+                    <i class="fas fa-calendar-check"></i> <span>Transaction History</span>
+                </li>
+                <li class="nav-item" id="cars">
+                    <i class="fas fa-bell"></i> <span>Notifications</span>
+                </li>
+                <li class="nav-item" id="set">
+                    <i class="fas fa-cog"></i> <span>Settings</span>
+                </li>
+            </ul>
+            <div class="sidebar-profile">
+                <div class="avatar">US</div>
+                <div class="profile-details">
+                    <span class="name">User Portal</span>
+                    <span class="role">Verified Driver</span>
+                </div>
+            </div>
+            <button id="logout" class="logout-btn"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></button>
+        </div>
+
+        <!-- Main Content -->
+        <main id="main-content">
+            <header>
+                <div class="header-container">
+                    <h1>Welcome to Your Dashboard, <span id="username">User</span></h1>
+                    <div class="notification-bell" id="notificationBell">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-counter" id="notificationCounter">0</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Book Now Section -->
+            <section class="book-now">
+                <h2>Book Your Ride</h2>
+                <div class="book-now-card">
+                    <div class="book-now-content">
+                        <p>Find the perfect car for your journey. Book now and enjoy a seamless experience!</p>
+                        <button id="bookNowBtn" class="book-now-btn">Book Now <i class="fas fa-arrow-right"></i></button>
+                    </div>
+                    <div class="book-now-image">
+                        <img src="rent.jpg" alt="Car Image">
+                    </div>
+                </div>
+            </section>
+
+            <!-- View Dashboard Section -->
+            <section class="view-dashboard">
+                <h2>Quick Access</h2>
+                <div class="dashboard-cards">
+                    <div class="dashboard-card">
+                        <i class="fas fa-car"></i>
+                        <h3>My Bookings</h3>
+                        <p>View and manage your current bookings.</p>
+                        <button class="view-btn" id="view-mybooking">View <i class="fas fa-arrow-right"></i></button>
+                    </div>
+                    <div class="dashboard-card">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <h3>Track Vehicle</h3>
+                        <p>Track your booked vehicle in real-time.</p>
+                        <button class="view-btn" id="view-bookedcar">View <i class="fas fa-arrow-right"></i></button>
+                    </div>
+                    <div class="dashboard-card">
+                        <i class="fas fa-history"></i>
+                        <h3>Transaction History</h3>
+                        <p>Check your past transactions and receipts.</p>
+                        <button class="view-btn">View <i class="fas fa-arrow-right"></i></button>
+                    </div>
+                </div>
+            </section>
+
+
+            <section class="transactions">
+                <h2>Transaction History</h2>
+                <div class="transaction-cards" id="history-cards">
+                    <!-- Cards will be inserted here -->
+                    <div class="loading-card">Loading transactions...</div>
+                </div>
+            </section>
+           
+
+            <!-- Notifications Section -->
+            <section class="notifications" id="notifications-section">
+                <h2>Notifications</h2>
+                <table class="notifications-table">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Message</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="notifications-list">
+                        <tr>
+                            <td colspan="4">Loading notifications...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+        </main>
+    </div>
+      <!-- ========== NEW NOTIFICATION MODAL ADDED ========== -->
+      <div id="notificationModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Your Notifications</h2>
+                <span class="close-btn" id="closeNotificationModal">&times;</span>
+            </div>
+            <div id="notificationModalContent">
+                <div class="no-notifications">Loading notifications...</div>
+            </div>
+        </div>
+    </div>
+    <!-- Payment Details Modal -->
+    <div id="paymentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Payment Details</h2>
+                <span class="close-btn" id="closePaymentModal">&times;</span>
+            </div>
+            <div class="payment-details">
+                <div class="payment-row">
+                    <span class="payment-label">Recipient Name:</span>
+                    <span class="payment-value" id="modalRecipientName">Loading...</span>
+                </div>
+                <div class="payment-row">
+                    <span class="payment-label">Account Number:</span>
+                    <span class="payment-value" id="modalAccountNumber">Loading...</span>
+                </div>
+                
+                <div class="qr-code-container">
+                    <h3>Scan to Pay</h3>
+                    <img id="modalQrCode" class="qr-code-img" src="" alt="QR Code">
+                    <p>Scan this QR code to complete your payment</p>
+                </div>
+                
+                <div class="instructions">
+                    <h3>Payment Instructions</h3>
+                    <ol>
+                        <li>Open your mobile banking app</li>
+                        <li>Scan the QR code above or send payment to the account number provided</li>
+                        <li>Enter the exact amount for your booking</li>
+                        <li>Upload the payment receipt in the app to confirm your booking</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <!-- Firebase SDK -->
+        <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    
+        <script>
+            const counterElement = document.getElementById('notificationCounter');
+            const bellElement = document.getElementById('notificationBell');
+                    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+            const firebaseConfig = {
+            apiKey: "AIzaSyBamJPyOALkoj5NyFWDMnpxijkK7iT5FHM",
+            authDomain: "drivehive-dbe9b.firebaseapp.com",
+            databaseURL: "https://drivehive-dbe9b-default-rtdb.firebaseio.com",
+            projectId: "drivehive-dbe9b",
+            storageBucket: "drivehive-dbe9b.firebasestorage.app",
+            messagingSenderId: "582305437761",
+            appId: "1:582305437761:web:0cd72a831664da4b018ec0",
+            measurementId: "G-YQ7H98NGVQ"
+            };
+    
+            // Initialize Firebase
+            const app = firebase.initializeApp(firebaseConfig);
+            const database = firebase.database();
+            const auth = firebase.auth();
+    
+            // Wait for DOM to be fully loaded
+            document.addEventListener('DOMContentLoaded', function() {
+                // DOM Elements
+
+                document.getElementById('history-cards')?.addEventListener('click', (e) => {
+        const bookAgainBtn = e.target.closest('.book-again-btn');
+        if (bookAgainBtn) {
+            const carId = bookAgainBtn.getAttribute('data-car-id');
+            console.log("🖱️ Book Again clicked for Car ID:", carId);
+            
+            if (carId) {
+                console.log("🔗 Redirecting to book-now.html with carId:", carId);
+                window.location.href = `book-now.html?carId=${encodeURIComponent(carId)}`;
+            } else {
+                console.warn("⚠️ No carId found for this booking!");
+                // Fallback: Redirect without carId
+                window.location.href = 'book-now.html';
+            }
+        }
+    });
+          
+                const notificationBell = document.getElementById('notificationBell');
+                const notificationCounter = document.getElementById('notificationCounter');
+                const paymentModal = document.getElementById('paymentModal');
+                const closeBtn = document.querySelector('.close-btn');
+                const modalQrCode = document.getElementById('modalQrCode');
+                const modalRecipientName = document.getElementById('modalRecipientName');
+                const modalAccountNumber = document.getElementById('modalAccountNumber');
+                const usernameElement = document.getElementById('username');
+                /////////////////////////////////////////////////////////////
+              
+            const notificationModal = document.getElementById('notificationModal');
+            const closeNotificationBtn = document.getElementById('closeNotificationModal');
+            const closePaymentBtn = document.getElementById('closePaymentModal'); 
+            const notificationModalContent = document.getElementById('notificationModalContent');
+                console.log("Elements:", {
+    counter: document.getElementById('notificationCounter'),
+    bell: document.getElementById('notificationBell'),
+    counterStyle: window.getComputedStyle(document.getElementById('notificationCounter'))
+});
+    
+               // Update the notification counter function
+               function updateNotificationCounter() {
+    const userId = getUserId();
+    const activeBookingsRef = database.ref('active-bookings');
+    
+    activeBookingsRef.on('value', (snapshot) => {
+        let activeCount = 0;
+        const bookings = snapshot.val();
+        
+        if (bookings) {
+            Object.keys(bookings).forEach(key => {
+                const booking = bookings[key];
+                if (booking?.userId === userId && booking?.status?.toLowerCase() === 'active') {
+                    activeCount++;
+                }
+            });
+        }
+        
+        // FORCEFUL UI UPDATE
+        const counter = document.getElementById('notificationCounter');
+        const bell = document.getElementById('notificationBell');
+        
+        if (counter && bell) {
+            // Update counter
+            counter.textContent = activeCount;
+            counter.style.display = activeCount > 0 ? 'flex' : 'none';
+            
+            // Create new bell element to ensure visual update
+            const newBell = bell.cloneNode(true);
+            bell.parentNode.replaceChild(newBell, bell);
+            
+            // Reattach event listener
+            newBell.addEventListener('click', showPaymentModal);
+            
+            // DEBUG: Add temporary visual indicator
+            counter.style.border = "2px solid red";  // Remove this after testing
+            counter.style.boxShadow = "0 0 10px red";
+            setTimeout(() => {
+                counter.style.border = "";
+                counter.style.boxShadow = "";
+            }, 1000);
+        }
+    });
+}
+
+
+// Enhanced getUserId() function
+function getUserId() {
+    // 1. Check localStorage for loggedInUser
+    try {
+        const loggedInUserString = localStorage.getItem("loggedInUser");
+        if (loggedInUserString) {
+            const loggedInUser = JSON.parse(loggedInUserString);
+            if (loggedInUser?.uid) return loggedInUser.uid;
+            if (loggedInUser?.userId) return loggedInUser.userId;
+        }
+    } catch (e) {
+        console.error("Error parsing loggedInUser:", e);
+    }
+    
+    // 2. Check Firebase auth
+    const user = auth.currentUser;
+    if (user?.uid) {
+        localStorage.setItem('userId', user.uid);
+        return user.uid;
+    }
+    
+    // 3. Fallback to hardcoded ID (remove in production)
+    console.warn("Using fallback user ID");
+    return "a8fc95d1-4eef-4b64-9d03-cc882503390d";
+}
+     // ========== NEW FUNCTIONS ADDED FOR NOTIFICATION SYSTEM ==========
+            
+            /**
+             * Get array of read notification IDs from localStorage
+             * @returns {Array} Array of notification IDs that have been read
+             */
+             const getReadNotifications = () => {
+                const read = localStorage.getItem('readNotifications');
+                return read ? JSON.parse(read) : [];
+            };
+
+            /**
+             * Save array of read notification IDs to localStorage
+             * @param {Array} ids Array of notification IDs to mark as read
+             */
+            const setReadNotifications = (ids) => {
+                localStorage.setItem('readNotifications', JSON.stringify(ids));
+            };
+
+            /**
+             * Update the notification counter badge
+             * Now only counts UNREAD notifications
+             */
+            function updateNotificationCounter() {
+                const userId = getUserId();
+                const activeBookingsRef = database.ref('active-bookings');
+                const readNotifications = getReadNotifications();
+                
+                activeBookingsRef.on('value', (snapshot) => {
+                    let unreadCount = 0;
+                    const bookings = snapshot.val();
+                    
+                    if (bookings) {
+                        Object.keys(bookings).forEach(key => {
+                            const booking = bookings[key];
+                            // Only count if: belongs to user, is active, and NOT read
+                            if (booking?.userId === userId && 
+                                booking?.status?.toLowerCase() === 'active' &&
+                                !readNotifications.includes(key)) {
+                                unreadCount++;
+                            }
+                        });
+                    }
+                
+                    // Update counter display
+                    notificationCounter.textContent = unreadCount;
+                    notificationCounter.style.display = unreadCount > 0 ? 'flex' : 'none';
+                });
+            }
+
+            /**
+             * Load notifications into the modal
+             * Shows both read and unread notifications with appropriate styling
+             */
+            function loadNotifications() {
+                const userId = getUserId();
+                const activeBookingsRef = database.ref('active-bookings');
+                const readNotifications = getReadNotifications();
+                
+                activeBookingsRef.orderByChild('userId').equalTo(userId).once('value').then((snapshot) => {
+                    const bookings = snapshot.val();
+                    notificationModalContent.innerHTML = '';
+                    
+                    if (!bookings) {
+                        notificationModalContent.innerHTML = '<div class="no-notifications">No active notifications</div>';
+                        return;
+                    }
+                    
+                    let hasNotifications = false;
+                    
+                    Object.keys(bookings).forEach(key => {
+                        const booking = bookings[key];
+                        if (booking?.status?.toLowerCase() === 'active') {
+                            hasNotifications = true;
+                            const isRead = readNotifications.includes(key);
+                            
+                            // Create notification item
+                            const notificationItem = document.createElement('div');
+                            notificationItem.className = `notification-item ${isRead ? 'read' : 'unread'}`;
+                            notificationItem.dataset.notificationId = key;
+                            
+                            // Notification title
+                            const title = document.createElement('div');
+                            title.className = 'notification-title';
+                            title.textContent = 'Payment Required';
+                            
+                            // Notification message
+                            const message = document.createElement('div');
+                            message.className = 'notification-message';
+                            message.textContent = `Please complete payment for your booking of ${booking.car?.carName || 'a vehicle'}.`;
+                            
+                            // Notification timestamp
+                            const time = document.createElement('div');
+                            time.className = 'notification-time';
+                            time.textContent = new Date(booking.bookingDateTime || Date.now()).toLocaleString();
+                            
+                            // Action buttons container
+                            const actions = document.createElement('div');
+                            actions.className = 'notification-actions';
+                            
+                            // Mark as read/unread button
+                            const markReadBtn = document.createElement('button');
+                            markReadBtn.className = 'mark-read-btn';
+                            markReadBtn.textContent = isRead ? 'Mark as Unread' : 'Mark as Read';
+                            markReadBtn.onclick = () => toggleReadStatus(key);
+                            
+                            // Proceed to payment button
+                            const proceedBtn = document.createElement('button');
+                            proceedBtn.className = 'proceed-payment-btn';
+                            proceedBtn.textContent = 'Proceed to Payment';
+                            proceedBtn.onclick = () => {
+                                //closeModal(notificationModal);
+                               // showPaymentModal();
+                                // Navigate to the payment page
+                    window.location.href = 'paymongo-payment-method/index.php';
+                            };
+                            
+                            // Append buttons to actions container
+                            actions.appendChild(markReadBtn);
+                            actions.appendChild(proceedBtn);
+                            
+                            // Append all elements to notification item
+                            notificationItem.appendChild(title);
+                            notificationItem.appendChild(message);
+                            notificationItem.appendChild(time);
+                            notificationItem.appendChild(actions);
+                            
+                            // Add notification to modal
+                            notificationModalContent.appendChild(notificationItem);
+                        }
+                    });
+                    
+                    if (!hasNotifications) {
+                        notificationModalContent.innerHTML = '<div class="no-notifications">No active notifications</div>';
+                    }
+                }).catch(error => {
+                    console.error("Error loading notifications:", error);
+                    notificationModalContent.innerHTML = '<div class="no-notifications">Error loading notifications</div>';
+                });
+            }
+
+            /**
+             * Toggle read status of a notification
+             * @param {string} notificationId The ID of the notification to toggle
+             */
+            function toggleReadStatus(notificationId) {
+                const readNotifications = getReadNotifications();
+                const index = readNotifications.indexOf(notificationId);
+                
+                if (index === -1) {
+                    // Mark as read by adding to array
+                    readNotifications.push(notificationId);
+                } else {
+                    // Mark as unread by removing from array
+                    readNotifications.splice(index, 1);
+                }
+                
+                // Save to localStorage
+                setReadNotifications(readNotifications);
+                
+                // Update counter and refresh notifications list
+                updateNotificationCounter();
+                loadNotifications();
+                loadNotificationsTable();
+            }
+
+            // ========== MODIFIED EXISTING FUNCTIONS ==========
+            
+            /**
+             * Show notification modal (modified from original payment modal)
+             */
+            function showNotificationModal() {
+                loadNotifications();
+                notificationModal.style.display = 'block';
+            }
+
+            /**
+             * Show payment modal (unchanged)
+             */
+            function showPaymentModal() {
+                loadPaymentDetails();
+                paymentModal.style.display = 'block';
+            }
+
+            /**
+             * Close modal (modified to handle any modal)
+             * @param {HTMLElement} modal The modal element to close
+             */
+            function closeModal(modal) {
+                modal.style.display = 'none';
+            }
+
+            // ========== EVENT LISTENERS - MODIFIED ==========
+            
+            // Changed from showing payment modal to showing notification modal
+            if (notificationBell) {
+                notificationBell.addEventListener('click', showNotificationModal);
+            }
+            
+            // Added new modal close handlers
+            if (closeNotificationBtn) {
+                closeNotificationBtn.addEventListener('click', () => closeModal(notificationModal));
+            }
+            
+            if (closePaymentBtn) {
+                closePaymentBtn.addEventListener('click', () => closeModal(paymentModal));
+            }
+            
+            // Modified to handle both modals
+            window.addEventListener('click', (e) => {
+                if (e.target === notificationModal) {
+                    closeModal(notificationModal);
+                }
+                if (e.target === paymentModal) {
+                    closeModal(paymentModal);
+                }
+            });
+
+            // Initialize Firebase Auth state observer - No changes
+            auth.onAuthStateChanged((user) => {
+                if (user) {
+                    localStorage.setItem('userId', user.uid);
+                }
+                initializeUserData();
+                updateNotificationCounter();
+            });
+            document.getElementById('cars').addEventListener('click', function(e) {
+             e.preventDefault();
+                document.getElementById('notifications-section').scrollIntoView({
+                     behavior: 'smooth'
+                 });
+                loadNotificationsTable(); // Optional refresh
+});
+                
+function loadPaymentDetails() {
+                const paymentDetailsRef = database.ref('payment_details');
+                
+                paymentDetailsRef.once('value').then((snapshot) => {
+                    const paymentDetails = snapshot.val();
+                    
+                    if (paymentDetails) {
+                        modalRecipientName.textContent = paymentDetails.recipientName || 'Not available';
+                        modalAccountNumber.textContent = paymentDetails.recipientAccount || 'Not available';
+                        
+                        if (paymentDetails.qrCodeUrl) {
+                            modalQrCode.src = paymentDetails.qrCodeUrl;
+                            modalQrCode.alt = 'Payment QR Code';
+                        } else {
+                            modalQrCode.src = 'placeholder-qr.png';
+                            modalQrCode.alt = 'QR Code not available';
+                        }
+                    }
+                }).catch((error) => {
+                    console.error("Error loading payment details:", error);
+                });
+            }
+
+            function populateTransactionHistory() {
+    const userId = getUserId();
+    const historyContainer = document.getElementById('history-cards');
+    
+    if (!historyContainer) {
+        console.error("❌ #history-cards container not found!");
+        return;
+    }
+
+    historyContainer.innerHTML = '<div class="loading-card">Loading transactions...</div>';
+
+    const billsRef = database.ref('Bills').orderByChild('userId').equalTo(userId);
+    
+    billsRef.once('value').then(snapshot => {
+        const bills = snapshot.val();
+        historyContainer.innerHTML = '';
+        
+        if (!bills) {
+            historyContainer.innerHTML = '<div class="no-transactions">No transactions found</div>';
+            return;
+        }
+
+        Object.entries(bills).forEach(([billId, bill]) => {
+            const card = document.createElement('div');
+            card.className = 'transaction-card';
+            
+            // Format date for display
+            const displayDate = bill.timestamp ? 
+                new Date(bill.timestamp).toLocaleDateString('en-US', { 
+                    month: 'short', 
+                    day: 'numeric',
+                    year: 'numeric'
+                }) : 'N/A';
+            
+            card.innerHTML = `
+                <div class="card-header">
+                    <span class="car-name">${bill.carName || 'N/A'}</span>
+                    <span class="transaction-date">${displayDate}</span>
+                </div>
+                <div class="card-details">
+                    <div class="detail-item">
+                        <span class="detail-label">Amount</span>
+                        <span class="detail-value price-tag">₱${parseFloat(bill.currentFee || 0).toFixed(2)}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Plate Number</span>
+                        <span class="detail-value">${bill.plateNumber || 'N/A'}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Payment Method</span>
+                        <span class="detail-value">${bill.paymentMethod || 'N/A'}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Status</span>
+                        <span class="detail-value" style="color: ${bill.status === 'completed' ? '#10b981' : '#f59e0b'}">
+                            ${bill.status || 'pending'}
+                        </span>
+                    </div>
+                </div>
+                <div class="card-footer" style="display: flex; justify-content: space-between; align-items: center; gap: 16px;">
+                    <span class="transaction-id">Booking ID: ${bill.bookingId || ''}</span>
+                    <button class="book-again-btn" data-car-id="${bill.plateNumber || ''}" style="display: flex; align-items: center; gap: 8px;">
+                        <svg class="car-icon" viewBox="0 0 24 24" width="20" height="20">
+                            <path d="M18.9 6.5c-.2-.6-.8-1-1.4-1h-11c-.7 0-1.2.4-1.4 1L3 12v8c0 .6.4 1 1 1h1c.6 0 1-.4 1-1v-1h12v1c0 .6.4 1 1 1h1c.6 0 1-.4 1-1v-8l-2.1-5.5zM6.5 16c-.8 0-1.5-.7-1.5-1.5S5.7 13 6.5 13s1.5.7 1.5 1.5S7.3 16 6.5 16zm11 0c-.8 0-1.5-.7-1.5-1.5s.7-1.5 1.5-1.5 1.5.7 1.5 1.5-.7 1.5-1.5 1.5zM5 11l1.5-4h11L19 11H5z"/>
+                        </svg>
+                        Book Again
+                    </button>
+                </div>
+            `;
+            
+            historyContainer.appendChild(card);
+        });
+
+        // Add event listeners to book again buttons
+        document.querySelectorAll('.book-again-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const plateNumber = this.getAttribute('data-car-id');
+                if (plateNumber) {
+                    // Implement your book again functionality here
+                    console.log('Book again clicked for plate:', plateNumber);
+                    // Example: window.location.href = `/book?plate=${plateNumber}`;
+                }
+            });
+        });
+
+    }).catch(error => {
+        console.error("Error loading transaction history:", error);
+        historyContainer.innerHTML = '<div class="no-transactions">Error loading transactions</div>';
+    });
+}
+
+
+// Helper function to view transaction details
+function viewTransactionDetails(transactionId) {
+    // Implement your details view logic here
+    console.log("Viewing details for transaction:", transactionId);
+}
+
+
+
+// Helper function to find booking by email if IDs don't match
+function findBookingByEmail(bookings, email) {
+    if (!bookings || !email) return null;
+    for (const key in bookings) {
+        if (bookings[key].email === email) {
+            return bookings[key];
+        }
+    }
+    return null;
+}
+
+// Call this function in your initializeUserData function
+function initializeUserData() {
+    const userId = getUserId();
+    
+    // Get user details from database
+    database.ref('users/' + userId).once('value').then((snapshot) => {
+        const userData = snapshot.val();
+        if (userData && userData.fullName) {
+            usernameElement.textContent = userData.fullName.split(' ')[0];
+        }
+    }).catch((error) => {
+        console.error("Error loading user data:", error);
+    });
+    
+    // Add this line to populate transaction history
+    populateTransactionHistory();
+}
+
+function loadNotificationsTable() {
+    const userId = getUserId();
+    const activeBookingsRef = database.ref('active-bookings');
+    const readNotifications = getReadNotifications();
+    const notificationsList = document.getElementById('notifications-list');
+
+    activeBookingsRef.orderByChild('userId').equalTo(userId).once('value').then((snapshot) => {
+        const bookings = snapshot.val();
+       
+        notificationsList.innerHTML = '';
+        
+        if (!bookings) {
+            notificationsList.innerHTML = '<tr><td colspan="5">No active notifications</td></tr>';
+            return;
+        }
+        
+        let hasNotifications = false;
+        
+        Object.keys(bookings).forEach(key => {
+            const booking = bookings[key];
+            if (booking?.status?.toLowerCase() === 'active') {
+                hasNotifications = true;
+                const isRead = readNotifications.includes(key);
+                
+                const row = document.createElement('tr');
+                if (isRead) {
+                    row.style.opacity = '0.8';
+                } else {
+                    row.style.borderLeft = '4px solid #1976d2';
+                }
+                
+                // Title cell
+                const titleCell = document.createElement('td');
+                titleCell.textContent = 'Payment Required';
+                
+                // Message cell
+                const messageCell = document.createElement('td');
+                messageCell.textContent = `Please complete payment for your booking of ${booking.car?.carName || 'a vehicle'}.`;
+                
+                // Date cell
+                const dateCell = document.createElement('td');
+                let displayDate = '';
+                if (booking.bookingDateTime) {
+                    displayDate = new Date(booking.bookingDateTime).toLocaleString();
+                } else if (booking.bookingDate && booking.bookingTime) {
+                    displayDate = new Date(`${booking.bookingDate} ${booking.bookingTime}`).toLocaleString();
+                } else if (booking.bookingDate) {
+                    displayDate = new Date(booking.bookingDate).toLocaleDateString();
+                } else {
+                    displayDate = new Date(booking.timestamp).toLocaleString();
+                }
+                dateCell.textContent = displayDate;
+                
+                // Actions cell
+                const actionsCell = document.createElement('td');
+                const actionsDiv = document.createElement('div');
+                actionsDiv.className = 'notification-actions';
+                
+                // Mark as read/unread button
+                const markReadBtn = document.createElement('button');
+                markReadBtn.className = 'mark-read-btn';
+                markReadBtn.textContent = isRead ? 'Mark Unread' : 'Mark Read';
+                markReadBtn.onclick = () => toggleReadStatus(key);
+                
+                const proceedBtn = document.createElement('button');
+proceedBtn.className = 'proceed-payment-btn';
+proceedBtn.textContent = 'Pay Now';
+proceedBtn.onclick = () => {
+    // Prepare the booking data to pass
+    const bookingData = {
+        bookingId: key,
+        carName: booking.car?.carName || 'Unknown Car',
+        carPlateNumber: booking.car?.licensePlate || '',
+        rentalPrice: booking.car?.rentalPrice || 0,
+        currentFee: booking.currentFee || 0,
+        bookingDate: booking.bookingDate || new Date().toISOString(),
+        fullName: booking.fullName || 'Unknown User',
+        email: booking.email || '',
+        userId: booking.userId || getUserId(),
+        carId: booking.car?.carId || ''
+    };
+    
+    // Debug logs to verify data
+    console.log('Current Fee from DB:', booking.currentFee);
+    console.log('Processed booking data:', bookingData);
+    
+    // Save to localStorage before redirect
+    localStorage.setItem('currentBooking', JSON.stringify(bookingData));
+    localStorage.setItem('lastSavedFee', bookingData.currentFee);
+    
+    // Redirect to payment page with currentFee in URL
+    window.location.href = `paymongo-payment-method/index.php?bookingId=${key}&currentFee=${bookingData.currentFee}`;
+};
+
+
+                
+                // Delete button
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'delete-booking-btn';
+                deleteBtn.textContent = 'Delete';
+                deleteBtn.onclick = () => {
+                    if (confirm('Are you sure you want to delete this booking?')) {
+                        // Remove from active bookings
+                        activeBookingsRef.child(key).remove()
+                            .then(() => {
+                                // Optional: Add to cancelled bookings or history
+                                // database.ref('cancelled-bookings').child(key).set(booking);
+                                
+                                // Remove from read notifications if it exists
+                                const updatedReadNotifications = readNotifications.filter(id => id !== key);
+                                localStorage.setItem('readNotifications', JSON.stringify(updatedReadNotifications));
+                                
+                                // Reload the table
+                                loadNotificationsTable();
+                            })
+                            .catch(error => {
+                                console.error('Error deleting booking:', error);
+                                alert('Failed to delete booking. Please try again.');
+                            });
+                    }
+                };
+                
+                actionsDiv.appendChild(markReadBtn);
+                actionsDiv.appendChild(proceedBtn);
+                actionsDiv.appendChild(deleteBtn);
+                actionsCell.appendChild(actionsDiv);
+                
+                row.appendChild(titleCell);
+                row.appendChild(messageCell);
+                row.appendChild(dateCell);
+                row.appendChild(actionsCell);
+                
+                notificationsList.appendChild(row);
+            }
+        });
+        
+        if (!hasNotifications) {
+            notificationsList.innerHTML = '<tr><td colspan="5">No active notifications</td></tr>';
+        }
+    }).catch(error => {
+        console.error("Error loading notifications:", error);
+        notificationsList.innerHTML = '<tr><td colspan="5">Error loading notifications</td></tr>';
+    });
+}
+    
+            
+    
+                // Initialize Firebase Auth state observer
+                auth.onAuthStateChanged((user) => {
+                    if (user) {
+                        // User is signed in
+                        localStorage.setItem('userId', user.uid);
+                        initializeUserData();
+                        updateNotificationCounter();
+                    } else {
+                        // No user is signed in (using demo mode)
+                        console.warn("No user signed in, using demo mode");
+                        initializeUserData();
+                        updateNotificationCounter();
+                    }
+                });
+    
+                // Initial setup
+                initializeUserData();
+                updateNotificationCounter();
+                loadNotificationsTable();
+                    });
+
+
+
+        </script>
+    
+</body>
+</html>

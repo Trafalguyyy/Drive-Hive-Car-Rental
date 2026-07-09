@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Map - Drive Hive</title>
+    <link rel="stylesheet" href="user-dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        /* Ensure the container takes full height */
+
+        #map {
+            height: 100%; /* Map takes full height of main content */
+             width: 70%;
+            margin-left: 25%; /* Map takes full width of main content */
+             border-radius: 20px; /* Add rounded corners */
+            overflow: hidden; /* Ensure the map doesn't overflow the rounded corners */
+        }
+    </style>
+</head>
+<body>
+    <script>
+        const firebaseConfig = {
+  apiKey: "AIzaSyBamJPyOALkoj5NyFWDMnpxijkK7iT5FHM",
+  authDomain: "drivehive-dbe9b.firebaseapp.com",
+  databaseURL: "https://drivehive-dbe9b-default-rtdb.firebaseio.com",
+  projectId: "drivehive-dbe9b",
+  storageBucket: "drivehive-dbe9b.firebasestorage.app",
+  messagingSenderId: "582305437761",
+  appId: "1:582305437761:web:0cd72a831664da4b018ec0",
+  measurementId: "G-YQ7H98NGVQ"
+};
+    </script>
+    <div class="container">
+        <!-- Sidebar -->
+     <div class="sidebar">
+            <img src="DriveHivelogo.png" alt="Drive Hive Logo" class="logo">
+            <h2 class="sidebar-title">DRIVE HIVE</h2>
+            <ul class="nav-links">
+                <li class="nav-item " id="dashboard">
+                    <i class="fas fa-home"></i> Dashboard
+                </li>
+                <li class="nav-item active" id="Viewmap">
+                    <i class="fas fa-map-marker-alt"></i> Map
+                </li>
+                <li class="nav-item" id="">
+                    <i class="fas fa-calendar-check"></i> Transaction History
+                </li>
+                <li class="nav-item" id="">
+                    <i class="fas fa-car"></i> Notifications
+                </li>
+                <li class="nav-item" id="">
+                    <i class="fas fa-users"></i> Settings
+                </li>
+            </ul>
+            <button id="logout" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div id="map"></div> <!-- Map container -->
+        </main>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        // Initialize the map with the Philippines as the center
+        const map = L.map('map').setView([12.8797, 121.7740], 6); // Center on the Philippines with zoom level 6
+
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Add a marker (optional)
+        const marker = L.marker([14.5995, 120.9842]).addTo(map) // Marker for Manila
+            .bindPopup('Manila, Philippines')
+            .openPopup();
+    </script>
+    <script type="module" src="book-now.js"></script> 
+</body>
+</html>

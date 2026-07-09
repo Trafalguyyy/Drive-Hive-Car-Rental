@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Add Admin | Drive Hive</title>
+    <link rel="stylesheet" href="settings.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <img src="DriveHivelogo.png" alt="Drive Hive Logo" class="logo">
+            <h2 class="sidebar-title">DRIVE HIVE</h2>
+            <ul class="nav-links">
+                <li class="nav-item" id="dashboard">
+                    <i class="fas fa-home"></i> <span>Dashboard</span>
+                </li>
+                <li class="nav-item" id="track-cars">
+                    <i class="fas fa-map-marker-alt"></i> <span>Track Cars</span>
+                </li>
+                <li class="nav-item" id="bookings">
+                    <i class="fas fa-calendar-check"></i> <span>Bookings</span>
+                </li>
+                <li class="nav-item" id="cars">
+                    <i class="fas fa-car"></i> <span>Cars</span>
+                </li>
+                <li class="nav-item" id="users">
+                    <i class="fas fa-users"></i> <span>Users</span>
+                </li>
+                <li class="nav-item active" id="settings">
+                    <i class="fas fa-cog"></i> <span>Settings</span>
+                </li>
+            </ul>
+            <div class="sidebar-profile">
+                <div class="avatar">AD</div>
+                <div class="profile-details">
+                    <span class="name">Admin User</span>
+                    <span class="role">System Manager</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="top-bar">
+                <div class="top-bar-left">
+                    <div class="breadcrumbs"><a href="dashboard.html">Admin</a> / <span>Settings</span></div>
+                    <h1>Settings</h1>
+                </div>
+            </div>
+
+            <div class="settings-container">
+                <!-- Add New Admin Section -->
+                <div class="admin-section">
+                    <h3>Add New Admin</h3>
+                    <form id="adminForm">
+                        <div class="form-group">
+                            <label for="adminEmail">Admin Email</label>
+                            <input type="email" id="adminEmail" placeholder="Enter admin email address" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="adminPassword">Password</label>
+                            <input type="password" id="adminPassword" placeholder="Enter password" required>
+                        </div>
+                        <button type="submit">Add Administrator Account</button>
+                    </form>
+                    <p id="adminMessage"></p>
+                </div>
+
+                <div class="payment_details">
+                    <div class="payment-section">
+                        <h3>Update Payment Options</h3>
+                        <form id="paymentForm">
+                            <div class="form-group">
+                                <label for="recipientName">Recipient Name</label>
+                                <input type="text" id="recipientName" placeholder="Enter recipient full name" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="recipientAccount">Account Number</label>
+                                <input type="text" id="recipientAccount" placeholder="Enter Gcash or Bank number" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="qrCodeImage">QR Code Payment Image</label>
+                                <input type="file" id="qrCodeImage" accept="image/*" required>
+                            </div>
+                
+                            <button type="submit">Save Payment Details</button>
+                        </form>
+                        <p id="paymentMessage"></p>
+                    </div>
+                
+                    <div class="current-details-section">
+                        <h3>Current Details</h3>
+                        <p><strong>Recipient Name:</strong> <span id="currentRecipientName">N/A</span></p>
+                        <p><strong>Recipient Account:</strong> <span id="currentRecipientAccount">N/A</span></p>
+                        
+                        <div class="qr-code-preview">
+                            <p><strong>Active QR Code:</strong></p>
+                            <img id="currentQrCodeImage" src="" alt="QR Code Preview" style="display: none;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="settings.js"></script>
+</body>
+</html>

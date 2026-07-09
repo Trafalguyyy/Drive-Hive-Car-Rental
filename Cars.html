@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cars - Drive Hive</title>
+    <link rel="stylesheet" href="cars.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <img src="DriveHivelogo.png" alt="Drive Hive Logo" class="logo">
+            <h2 class="sidebar-title">DRIVE HIVE</h2>
+            <ul class="nav-links">
+                <li class="nav-item" id="dashboard">
+                    <i class="fas fa-home"></i> <span>Dashboard</span>
+                </li>
+                <li class="nav-item" id="track-cars">
+                    <i class="fas fa-map-marker-alt"></i> <span>Track Cars</span>
+                </li>
+                <li class="nav-item" id="bookings">
+                    <i class="fas fa-calendar-check"></i> <span>Bookings</span>
+                </li>
+                <li class="nav-item active" id="cars">
+                    <i class="fas fa-car"></i> <span>Cars</span>
+                </li>
+                <li class="nav-item" id="users">
+                    <i class="fas fa-users"></i> <span>Users</span>
+                </li>
+                <li class="nav-item" id="settings">
+                    <i class="fas fa-cog"></i> <span>Settings</span>
+                </li>
+            </ul>
+            <div class="sidebar-profile">
+                <div class="avatar">AD</div>
+                <div class="profile-details">
+                    <span class="name">Admin User</span>
+                    <span class="role">System Manager</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="top-bar">
+                <div class="top-bar-left">
+                    <div class="breadcrumbs"><a href="dashboard.html">Admin</a> / <span>Cars</span></div>
+                    <h1>Car Management</h1>
+                </div>
+                <div class="top-bar-right">
+                    <button id="addCarBtn"><i class="fas fa-plus"></i> Add Car</button>
+                    <button id="filterBtn"><i class="fas fa-filter"></i> Filter</button>
+                </div>
+            </div>
+            
+            <div class="cars-grid" id="carsList"></div>
+        </div>
+    </div>
+
+    <!-- Modal Form -->
+    <div id="carModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="modalTitle">Add New Car</h2>
+            <form id="carForm">
+                <input type="hidden" id="carId">
+                
+                <div class="form-group">
+                    <label for="gpsId">GPS Device ID:</label>
+                    <input type="text" id="gpsId" required placeholder="Enter device identifier">
+                </div>
+                
+                <div class="form-group">
+                    <label for="carName">Car Name:</label>
+                    <input type="text" id="carName" required placeholder="e.g., Porsche Taycan">
+                </div>
+    
+                <div class="form-group">
+                    <label for="carModel">Car Model:</label>
+                    <input type="text" id="carModel" required placeholder="e.g., Electric">
+                </div>
+    
+                <div class="form-group">
+                    <label for="carYear">Year:</label>
+                    <input type="number" id="carYear" required placeholder="e.g., 2026">
+                </div>
+    
+                <div class="form-group">
+                    <label for="licensePlate">License Plate:</label>
+                    <input type="text" id="licensePlate" required placeholder="e.g., ABC-1234">
+                </div>
+    
+                <div class="form-group">
+                    <label for="rentalFee">Rental Fee (₱):</label>
+                    <input type="number" id="rentalFee" required placeholder="Daily rental fee">
+                </div>
+    
+                <div class="form-group">
+                    <label for="numSeats">Number of Seats:</label>
+                    <input type="number" id="numSeats" required placeholder="e.g., 4">
+                </div>
+    
+                <div class="form-group" style="grid-column: span 2;">
+                    <label for="description">Description:</label>
+                    <textarea id="description" rows="3" required placeholder="Describe the vehicle's features and specifications..."></textarea>
+                </div>
+    
+                <!-- Main Car Image -->
+                <div class="image-upload-section">
+                    <label for="carImage">Main Car Image:</label>
+                    <input type="file" id="carImage" accept="image/*" required>
+                    <img id="previewImage" class="image-preview" style="display:none;">
+                </div>
+    
+                <!-- Additional Reference Images -->
+                <div class="image-upload-section">
+                    <label>Reference Images:</label>
+                    <div id="referenceImagesContainer">
+                        <div class="reference-image-item">
+                            <input type="file" class="referenceImage" accept="image/*">
+                            <img class="reference-preview" style="display:none;">
+                            <button type="button" class="remove-image-btn"><i class="fas fa-times"></i></button>
+                        </div>
+                    </div>
+                    <button type="button" id="addMoreImagesBtn" class="add-more-btn">
+                        <i class="fas fa-plus"></i> Add More Images
+                    </button>
+                </div>
+                
+                <button type="submit">Save Car Configuration</button>
+            </form>
+        </div>
+    </div>
+    
+    <script type="module" src="firebase-config.js"></script>
+    <script type="module" src="cars.js"></script>    
+</body>
+</html>

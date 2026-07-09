@@ -1,0 +1,935 @@
+/* ═══════════════════════════════════════
+   Drive Hive — User Portal & Login (Premium)
+   ═══════════════════════════════════════ */
+
+@import url('style.css');
+
+body {
+  background: var(--dh-bg);
+  color: var(--dh-text);
+  overflow-x: hidden;
+}
+
+/* ── Floating Sticky Glass Navbar ── */
+.main-nav {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 48px);
+  max-width: 1200px;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  z-index: 1000;
+  padding: 12px 24px;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  transition: all var(--transition-base);
+}
+
+.nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 800;
+  font-size: 1.1rem;
+  letter-spacing: 0.5px;
+  color: var(--dh-dark);
+}
+
+.nav-brand img {
+  height: 32px;
+  object-fit: contain;
+}
+
+.main-nav ul {
+  display: flex;
+  align-items: center;
+  list-style: none;
+  gap: 6px;
+}
+
+.main-nav a {
+  color: var(--dh-text-muted);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.85rem;
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  transition: all var(--transition-fast);
+}
+
+.main-nav a:hover {
+  background: var(--dh-bg-alt);
+  color: var(--dh-dark);
+}
+
+.main-nav a.active {
+  background: var(--dh-dark);
+  color: var(--dh-white);
+}
+
+/* Nav Actions (Search, Notif, Profile) */
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.nav-search-bar {
+  display: flex;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--dh-border);
+  border-radius: var(--radius-full);
+  padding: 4px 12px;
+  width: 180px;
+  transition: all var(--transition-fast);
+}
+
+.nav-search-bar:focus-within {
+  width: 240px;
+  background: var(--dh-white);
+  border-color: var(--dh-red);
+}
+
+.nav-search-bar i {
+  font-size: 0.8rem;
+  color: var(--dh-text-muted);
+  margin-right: 6px;
+}
+
+.nav-search-bar input {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 0.8rem;
+  width: 100%;
+}
+
+.nav-icon-btn {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  background: rgba(0, 0, 0, 0.04);
+  color: var(--dh-dark);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.nav-icon-btn:hover {
+  background: var(--dh-bg-alt);
+}
+
+.nav-icon-btn .badge {
+  position: absolute;
+  top: 6px; right: 6px;
+  width: 8px; height: 8px;
+  border-radius: var(--radius-full);
+  background: var(--dh-red);
+}
+
+.nav-profile-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  background: var(--dh-dark);
+  color: var(--dh-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+/* ── Split Screen Login Section ── */
+.header-section {
+  min-height: 100vh;
+  display: flex;
+  background: #0d0d0f;
+  position: relative;
+  overflow: hidden;
+  padding: 0;
+}
+
+.login-split {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* Left Pane: Marketing Imagery */
+.login-marketing {
+  flex: 1.3;
+  position: relative;
+  background: url('https://images.unsplash.com/photo-1617788138017-80ad40651399?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') no-repeat center center/cover;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 64px;
+  z-index: 1;
+}
+
+.login-marketing::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(13, 13, 15, 0.95) 0%, rgba(13, 13, 15, 0.4) 60%, transparent 100%);
+  z-index: -1;
+}
+
+.marketing-content {
+  color: var(--dh-white);
+  max-width: 480px;
+  animation: slideUp var(--transition-slow) ease forwards;
+}
+
+.marketing-logo {
+  width: 52px;
+  height: 52px;
+  margin-bottom: var(--space-md);
+  border-radius: var(--radius-md);
+}
+
+.marketing-content h2 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 3.2rem;
+  font-weight: 800;
+  letter-spacing: -1px;
+  line-height: 1.1;
+  color: var(--dh-white);
+  margin-bottom: var(--space-xs);
+}
+
+.marketing-content .tagline {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--dh-red);
+  margin-bottom: var(--space-sm);
+}
+
+.marketing-content .sub-tagline {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.65);
+  line-height: 1.6;
+}
+
+/* Right Pane: Glassmorphism Card Container */
+.login-form-container {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 80px 40px;
+  background: #0d0d0f;
+  position: relative;
+  z-index: 2;
+  overflow-y: auto;
+}
+
+.login-container {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-xl);
+  padding: 40px;
+  width: 100%;
+  max-width: 440px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+  animation: fadeIn var(--transition-base) ease forwards;
+  margin: auto;
+}
+
+#form-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--dh-white);
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+/* Toggle Buttons */
+.toggle-buttons {
+  display: flex;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-md);
+  padding: 4px;
+  margin-bottom: 24px;
+  gap: 4px;
+}
+
+.toggle-buttons button {
+  flex: 1;
+  padding: 11px 0;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.5);
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.toggle-buttons button:hover {
+  color: var(--dh-white);
+}
+
+.toggle-buttons button.active {
+  background: var(--dh-red);
+  color: var(--dh-white);
+  box-shadow: 0 4px 12px rgba(229,57,53,0.25);
+}
+
+/* Form Styling */
+#authForm {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+#authForm input {
+  width: 100%;
+  height: 48px;
+  min-height: 48px;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-md);
+  color: var(--dh-white);
+  font-size: 0.9rem;
+  outline: none;
+  transition: all var(--transition-fast);
+}
+
+#authForm input::placeholder {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+#authForm input:focus {
+  border-color: var(--dh-red);
+  background: rgba(255, 255, 255, 0.07);
+  box-shadow: 0 0 0 3px rgba(229, 57, 53, 0.2);
+}
+
+/* Remember Me and Forgot Password Flex Grid */
+.form-options-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  margin-top: 4px;
+}
+
+.remember-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+}
+
+.remember-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--dh-red);
+  cursor: pointer;
+}
+
+#forgot-password {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  font-weight: 500;
+  transition: color var(--transition-fast);
+}
+
+#forgot-password:hover {
+  color: var(--dh-red);
+}
+
+#submit-btn {
+  width: 100%;
+  height: 48px;
+  background: var(--dh-red);
+  color: var(--dh-white);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  margin-top: 8px;
+}
+
+#submit-btn:hover {
+  background: var(--dh-red-hover);
+  box-shadow: 0 4px 16px rgba(229,57,53,0.35);
+}
+
+/* Auth hints */
+.auth-hint {
+  text-align: center;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 16px;
+}
+
+.auth-hint span {
+  color: var(--dh-red);
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.auth-hint span:hover {
+  text-decoration: underline;
+}
+
+/* File Upload buttons */
+#signup-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+#upload-picture-btn, #upload-license-btn {
+  height: 48px;
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.6);
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+#upload-picture-btn:hover, #upload-license-btn:hover {
+  border-color: var(--dh-red);
+  color: var(--dh-white);
+  background: rgba(229,57,53,0.08);
+}
+
+/* Message alert inside forms */
+#message {
+  font-size: 0.8rem;
+  color: var(--dh-red);
+}
+
+/* ── Content Sections (Landing Details) ── */
+.page-container {
+  background: var(--dh-white);
+  width: 100%;
+}
+
+.content-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--space-xl);
+}
+
+.content-block {
+  padding: 80px 0;
+  text-align: center;
+}
+
+.content-block h2 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--dh-dark);
+  margin-bottom: var(--space-sm);
+}
+
+.content-block h2::after {
+  content: '';
+  display: block;
+  width: 40px;
+  height: 4px;
+  background: var(--dh-red);
+  border-radius: var(--radius-full);
+  margin: 12px auto 0;
+}
+
+.content-block p {
+  font-size: 0.95rem;
+  color: var(--dh-text-muted);
+  line-height: 1.7;
+  max-width: 640px;
+  margin: 0 auto 36px;
+}
+
+/* ── Public Cars Fleet showcase grid ── */
+.cars-container {
+  margin-top: var(--space-md);
+}
+
+.cars-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 24px;
+}
+
+/* Make uniform vehicle cards */
+.car-card {
+  background: var(--dh-white);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--dh-border);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  text-align: left;
+  transition: all var(--transition-base);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* All cards equal height */
+}
+
+.car-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lg);
+}
+
+.car-card img.car-image {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  transition: transform var(--transition-slow);
+}
+
+.car-card:hover img.car-image {
+  transform: scale(1.02);
+}
+
+.car-card .car-info {
+  padding: 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.car-card .car-name {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--dh-dark);
+  margin-bottom: 8px;
+}
+
+.car-card .car-price {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--dh-red);
+  margin-top: auto;
+}
+
+/* Grid specifications layout */
+@media (min-width: 1024px) {
+  .cars-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 1023px) and (min-width: 641px) {
+  .cars-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .cars-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── About Us Layout ── */
+.about-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  text-align: left;
+  align-items: center;
+}
+
+.about-text {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.about-text h3 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--dh-dark);
+}
+
+.about-text ul {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.about-text ul li {
+  font-size: 0.9rem;
+  color: var(--dh-text-muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.about-text ul li::before {
+  content: '✓';
+  color: var(--dh-red);
+  font-weight: 700;
+}
+
+.about-image img {
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  width: 100%;
+  object-fit: cover;
+  height: 340px;
+}
+
+/* ── How It Works Steps ── */
+.steps-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  margin-top: var(--space-md);
+}
+
+.step {
+  background: var(--dh-bg);
+  border: 1px solid var(--dh-border);
+  padding: 36px 20px;
+  border-radius: var(--radius-lg);
+  text-align: center;
+  transition: all var(--transition-base);
+}
+
+.step:hover {
+  transform: translateY(-4px);
+  background: var(--dh-white);
+  box-shadow: var(--shadow-md);
+}
+
+.step-number {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-full);
+  background: var(--dh-red-light);
+  color: var(--dh-red);
+  font-weight: 700;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.step h3 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--dh-dark);
+  margin-bottom: 8px;
+}
+
+.step p {
+  font-size: 0.8rem;
+  color: var(--dh-text-muted);
+  line-height: 1.5;
+  margin-bottom: 0;
+}
+
+/* ── Contact Section ── */
+.contact-container {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 48px;
+  text-align: left;
+}
+
+.contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.contact-details {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.contact-item i {
+  width: 40px;
+  height: 40px;
+  background: var(--dh-bg-alt);
+  color: var(--dh-red);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+}
+
+.contact-item p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--dh-text-muted);
+}
+
+.social-media h3 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--dh-dark);
+  margin-bottom: 12px;
+}
+
+.social-icons {
+  display: flex;
+  gap: 8px;
+}
+
+.social-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  background: var(--dh-bg-alt);
+  color: var(--dh-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+  font-size: 0.9rem;
+}
+
+.social-icon:hover {
+  background: var(--dh-red);
+  color: var(--dh-white);
+  transform: translateY(-2px);
+}
+
+.contact-map {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--dh-border);
+  height: 340px;
+}
+
+.contact-map iframe {
+  width: 100%;
+  height: 100%;
+}
+
+/* ── Public Car Details Modal ── */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  animation: fadeIn var(--transition-fast) ease forwards;
+}
+
+.modal-content {
+  background: var(--dh-white);
+  border-radius: var(--radius-xl);
+  padding: 36px;
+  box-shadow: var(--shadow-xl);
+  border: 1px solid var(--dh-border);
+  width: 760px;
+  max-width: 95vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  animation: slideUp var(--transition-base) ease forwards;
+}
+
+.close-btn {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--dh-text-muted);
+  transition: all var(--transition-fast);
+  font-size: 1.25rem;
+  background: transparent;
+  border: none;
+  z-index: 10;
+}
+
+.close-btn:hover {
+  background: var(--dh-red-light);
+  color: var(--dh-red);
+}
+
+/* Grid Flip Layout using flexrow-reverse to place image on Left, details on Right */
+.car-modal-container {
+  display: flex;
+  flex-direction: row-reverse;
+  gap: 32px;
+  margin-top: 10px;
+  text-align: left;
+}
+
+.car-modal-right {
+  flex: 1.1;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--dh-border);
+  height: 280px;
+}
+
+.car-modal-right img.car-modal-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--transition-slow);
+}
+
+.car-modal-right img.car-modal-image:hover {
+  transform: scale(1.03);
+}
+
+.car-modal-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.car-modal-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--dh-dark);
+  margin-bottom: 16px;
+}
+
+.car-modal-detail {
+  font-size: 0.85rem;
+  color: var(--dh-text-muted);
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--dh-border);
+}
+
+.car-modal-detail strong {
+  color: var(--dh-dark);
+  font-weight: 600;
+}
+
+.car-modal-left button#bookNowBtn {
+  margin-top: auto;
+  height: 48px;
+  background: var(--dh-red);
+  color: var(--dh-white);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.car-modal-left button#bookNowBtn:hover {
+  background: var(--dh-red-hover);
+  box-shadow: 0 4px 16px rgba(229,57,53,0.3);
+}
+
+/* ── Responsive user portal ── */
+@media (max-width: 1024px) {
+  .about-content, .contact-container {
+    grid-template-columns: 1fr;
+    gap: var(--space-xl);
+  }
+  .steps-container {
+    grid-template-columns: 1fr 1fr;
+  }
+  .login-split {
+    flex-direction: column;
+  }
+  .login-marketing {
+    flex: none;
+    min-height: 280px;
+    padding: 32px;
+  }
+  .login-marketing h2 {
+    font-size: 2.2rem;
+  }
+  .login-form-container {
+    padding: 32px 16px;
+  }
+  .car-modal-container {
+    flex-direction: column;
+    gap: 20px;
+  }
+  .car-modal-right {
+    height: 200px;
+  }
+  .main-nav {
+    width: calc(100% - 32px);
+    top: 8px;
+    padding: 8px 16px;
+  }
+  .nav-search-bar {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .steps-container {
+    grid-template-columns: 1fr;
+  }
+  .main-nav ul {
+    display: none; /* Hide link list on mobile view to look cleaner */
+  }
+}

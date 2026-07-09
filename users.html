@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Users - Drive Hive</title>
+    <link rel="stylesheet" href="users.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <img src="DriveHivelogo.png" alt="Drive Hive Logo" class="logo">
+            <h2 class="sidebar-title">DRIVE HIVE</h2>
+            <ul class="nav-links">
+                <li class="nav-item" id="dashboard">
+                    <i class="fas fa-home"></i> <span>Dashboard</span>
+                </li>
+                <li class="nav-item" id="track-cars">
+                    <i class="fas fa-map-marker-alt"></i> <span>Track Cars</span>
+                </li>
+                <li class="nav-item" id="bookings">
+                    <i class="fas fa-calendar-check"></i> <span>Bookings</span>
+                </li>
+                <li class="nav-item" id="cars">
+                    <i class="fas fa-car"></i> <span>Cars</span>
+                </li>
+                <li class="nav-item active" id="users">
+                    <i class="fas fa-users"></i> <span>Users</span>
+                </li>
+                <li class="nav-item" id="settings">
+                    <i class="fas fa-cog"></i> <span>Settings</span>
+                </li>
+            </ul>
+            <div class="sidebar-profile">
+                <div class="avatar">AD</div>
+                <div class="profile-details">
+                    <span class="name">Admin User</span>
+                    <span class="role">System Manager</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="top-bar">
+                <div class="top-bar-left">
+                    <div class="breadcrumbs"><a href="dashboard.html">Admin</a> / <span>Users</span></div>
+                    <h1>User Management</h1>
+                </div>
+            </div>
+
+            <div class="users-container">
+                <h2>Customer Registry</h2>
+                <p>Total Registered Users: <span id="totalUsers">0</span></p>
+                <div class="table-container">
+                    <table id="usersTable">
+                        <thead>
+                            <tr>
+                                <th>Email Address</th>
+                                <th>Phone Number</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Rows populated dynamically by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="users.js"></script>
+</body>
+</html>
